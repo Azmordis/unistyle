@@ -1,7 +1,7 @@
 {
-  "name": "Text Formatter",
-  "short_name": "TextFmt",
-  "description": "Convert text to Unicode styles that copy and paste across apps — Discord, Notion, Twitter, email, and more.",
+  "name": "UniStyle",
+  "short_name": "UniStyle",
+  "description": "Convert text to Unicode styles that copy-paste anywhere — bold, italic, script, vaporwave, and 19 more. Works in Discord, Notion, Twitter, Slack, email, and anywhere Unicode renders.",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#1c3560",

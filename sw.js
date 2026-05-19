@@ -1,9 +1,8 @@
-// Text Formatter — Service Worker
-// v2: bumped cache name to bust stale v1 installs.
+// UniStyle — Service Worker
 // Strategy: network-first for index.html (updates reach users immediately);
 //           cache-first for everything else (icons, manifest — rarely change).
 
-const CACHE_NAME = 'text-formatter-v2';
+const CACHE_NAME = 'unistyle-v1';
 
 const ASSETS = [
   './',
