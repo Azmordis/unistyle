@@ -70,7 +70,25 @@
       justify-content: center;
     }
     .header-title .title-text { display: flex; flex-direction: column; line-height: 1.1; }
-    .header-title .title-tagline { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.6); letter-spacing: 0.01em; }
+    .header-title .title-tagline { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.6); letter-spacing: 0.01em; display: inline-flex; align-items: center; gap: 5px; }
+    .info-bubble {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.18);
+      color: rgba(255,255,255,0.9);
+      font-size: 10px;
+      font-weight: 700;
+      font-style: italic;
+      font-family: Georgia, 'Times New Roman', serif;
+      cursor: help;
+      user-select: none;
+      transition: background 0.15s;
+    }
+    .info-bubble:hover, .info-bubble:focus { background: rgba(255,255,255,0.35); outline: none; }
     .header-actions { display: flex; gap: 8px; align-items: center; }
     .btn-header {
       background: rgba(255,255,255,0.12);
@@ -568,7 +586,7 @@
       <div class="t-badge">U</div>
       <div class="title-text">
         <span>UniStyle</span>
-        <span class="title-tagline">a universal text editor</span>
+        <span class="title-tagline">a universal text editor<span class="info-bubble" tabindex="0" title="Unicode styles copy-paste into Discord, Notion, Twitter, Slack, and more. The formatting travels with the text." aria-label="Unicode styles copy-paste into Discord, Notion, Twitter, Slack, and more. The formatting travels with the text.">i</span></span>
       </div>
     </div>
     <div class="header-actions">
@@ -723,7 +741,6 @@
 
   <!-- Footer -->
   <footer class="app-footer">
-    <span class="footer-note">UniStyle — Unicode styles copy-paste into Discord, Notion, Twitter, Slack, and more. The formatting travels with the text.</span>
     <a href="privacy.html">Privacy Policy</a>
     <!-- Ko-fi tip link -->
     <a href="https://ko-fi.com/abaker421" target="_blank" rel="noopener noreferrer">☕ Support UniStyle</a>
