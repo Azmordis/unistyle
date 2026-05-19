@@ -146,7 +146,7 @@ function stripUnicode(text) {
 const STYLES = [
   {
     key:'bold', label:'Bold', compat:{d:2,t:2,n:2,s:0},
-    tip:'Mathematical bold — copies as actual bold Unicode characters into Discord, Slack, Notion, Twitter, and anywhere that renders Unicode.',
+    tip:'Mathematical bold — copies as actual bold Unicode characters into Discord, Slack, Notion, X/Twitter, and anywhere that renders Unicode.',
     fn: t => mapRange(t,0x1D400,0x1D41A,0x1D7CE)
   },
   {

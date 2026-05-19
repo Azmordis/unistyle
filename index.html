@@ -586,7 +586,7 @@
       <div class="t-badge">U</div>
       <div class="title-text">
         <span>UniStyle</span>
-        <span class="title-tagline">a universal text editor<span class="info-bubble" tabindex="0" title="Unicode styles copy-paste into Discord, Notion, Twitter, Slack, and more. The formatting travels with the text." aria-label="Unicode styles copy-paste into Discord, Notion, Twitter, Slack, and more. The formatting travels with the text.">i</span></span>
+        <span class="title-tagline">a universal text editor<span class="info-bubble" tabindex="0" title="Unicode styles copy-paste into Discord, Notion, X/Twitter, Slack, and more. The formatting travels with the text." aria-label="Unicode styles copy-paste into Discord, Notion, X/Twitter, Slack, and more. The formatting travels with the text.">i</span></span>
       </div>
     </div>
     <div class="header-actions">
@@ -669,11 +669,11 @@
       <div class="limit-bar-wrap">
         <div class="limit-bar-track">
           <div class="limit-bar-fill" id="limitBarFill"></div>
-          <div class="limit-marker" style="left:9.33%"><span>Twitter 280</span></div>
+          <div class="limit-marker" style="left:9.33%"><span>X/Twitter 280</span></div>
           <div class="limit-marker" style="left:66.67%"><span>Discord 2k</span></div>
           <div class="limit-marker" style="left:73.33%"><span>Instagram 2.2k</span></div>
         </div>
-        <div class="limit-status" id="limitStatus">Twitter 280 · Discord 2,000 · Instagram 2,200</div>
+        <div class="limit-status" id="limitStatus">X/Twitter 280 · Discord 2,000 · Instagram 2,200</div>
       </div>
     </div>
 
@@ -904,7 +904,7 @@
   function histOutside(e) { if (!histDropdown.contains(e.target) && e.target !== histBtn) closeHistory(); }
 
   /* ── Build rows ──────────────────────────────────────── */
-  const PLAT = [{k:'d',l:'Discord'},{k:'t',l:'Twitter/X'},{k:'n',l:'Notion'},{k:'s',l:'SMS'}];
+  const PLAT = [{k:'d',l:'Discord'},{k:'t',l:'X/Twitter'},{k:'n',l:'Notion'},{k:'s',l:'SMS'}];
   const COMPAT_LABEL = ['Limited','Partial','Full'];
 
   function buildRows() {
@@ -989,14 +989,14 @@
 
     if (!limitStatus) return;
     if (chars === 0) {
-      limitStatus.textContent = 'Twitter 280 · Discord 2,000 · Instagram 2,200';
+      limitStatus.textContent = 'X/Twitter 280 · Discord 2,000 · Instagram 2,200';
       limitStatus.classList.remove('limit-exceeded');
     } else if (active) {
       const remaining = active.n - chars;
       limitStatus.textContent = remaining + ' left for ' + active.name + ' (' + active.n.toLocaleString() + ' char limit)';
       limitStatus.classList.toggle('limit-exceeded', remaining < active.n * 0.1);
     } else {
-      limitStatus.textContent = 'Over all limits — Twitter · Discord · Instagram';
+      limitStatus.textContent = 'Over all limits — X/Twitter · Discord · Instagram';
       limitStatus.classList.add('limit-exceeded');
     }
   }
