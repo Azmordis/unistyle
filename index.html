@@ -90,6 +90,20 @@
     }
     .info-bubble:hover, .info-bubble:focus { background: rgba(255,255,255,0.35); outline: none; }
     .header-actions { display: flex; gap: 8px; align-items: center; }
+    .help-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.65);
+      cursor: pointer;
+      user-select: none;
+      padding: 4px 6px;
+      white-space: nowrap;
+    }
+    .help-toggle:hover { color: rgba(255,255,255,0.9); }
+    .help-toggle input { cursor: pointer; margin: 0; }
     .btn-header {
       background: rgba(255,255,255,0.12);
       color: var(--text-light);
@@ -590,6 +604,10 @@
       </div>
     </div>
     <div class="header-actions">
+      <label class="help-toggle" data-tip="Show explanatory tooltips on hover — uncheck for a cleaner power-user UI">
+        <input type="checkbox" id="helpToggle" checked />
+        <span>Help</span>
+      </label>
       <button id="installBtn" class="btn-header"
         data-tip="Install as an app on your device for offline use">
         ⬇ Install App
@@ -1063,7 +1081,23 @@
   const ttPortal = document.getElementById('tt-portal');
   let ttActive = null;
 
+  /* Help text toggle — power users can disable tooltips */
+  const HELP_KEY = 'unistyle-show-tips';
+  const helpToggle = document.getElementById('helpToggle');
+  let helpEnabled = localStorage.getItem(HELP_KEY) !== 'false';
+  helpToggle.checked = helpEnabled;
+  helpToggle.addEventListener('change', () => {
+    helpEnabled = helpToggle.checked;
+    localStorage.setItem(HELP_KEY, helpEnabled ? 'true' : 'false');
+    if (!helpEnabled && ttActive) {
+      ttActive = null;
+      ttPortal.style.opacity = '0';
+      ttPortal.style.display = 'none';
+    }
+  });
+
   document.addEventListener('mouseover', e => {
+    if (!helpEnabled) return;
     const t = e.target.closest('[data-tip]');
     if (!t || t === ttActive) return;
     ttActive = t;
