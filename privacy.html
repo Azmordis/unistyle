@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — UniStyle</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#2E5082" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:      #2E5082;
+      --primary-dark: #1c3560;
+      --accent:       #A07020;
+      --bg:           #EFF2F7;
+      --white:        #FFFFFF;
+      --border:       #d0dcea;
+      --text-dark:    #1e2a38;
+      --neutral:      #526070;
+    }
+
+    html, body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text-dark);
+      line-height: 1.7;
+    }
+
+    /* ── Header ── */
+    .site-header {
+      background: var(--primary-dark);
+      border-bottom: 3px solid var(--accent);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .header-title {
+      color: #fff;
+      font-size: 17px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .t-badge {
+      background: var(--accent);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 800;
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* ── Content ── */
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 40px 24px 60px;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+    .meta {
+      font-size: 13px;
+      color: var(--neutral);
+      margin-bottom: 36px;
+    }
+
+    h2 {
+      font-size: 15px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--primary);
+      margin: 32px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    p { margin-bottom: 14px; font-size: 15px; }
+
+    ul {
+      margin: 0 0 14px 20px;
+      font-size: 15px;
+    }
+    ul li { margin-bottom: 6px; }
+
+    .highlight-box {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 6px;
+      padding: 14px 18px;
+      margin-bottom: 24px;
+      font-size: 15px;
+    }
+
+    a { color: var(--primary); }
+    a:hover { color: var(--accent); }
+
+    /* ── Footer ── */
+    .site-footer {
+      background: var(--primary-dark);
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding: 14px 20px;
+      text-align: center;
+    }
+    .site-footer a {
+      color: rgba(255,255,255,0.55);
+      font-size: 13px;
+      text-decoration: none;
+      margin: 0 10px;
+    }
+    .site-footer a:hover { color: #fff; }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="/" class="header-title">
+    <div class="t-badge">U</div>
+    UniStyle
+  </a>
+</header>
+
+<div class="container">
+  <h1>Privacy Policy</h1>
+  <p class="meta">Last updated: May 19, 2026 &nbsp;·&nbsp; Applies to the UniStyle website and browser extension.</p>
+
+  <div class="highlight-box">
+    <strong>Short version:</strong> UniStyle does not collect, transmit, or store any personal data.
+    All text processing happens locally in your browser. No accounts. No tracking. No analytics.
+  </div>
+
+  <h2>What UniStyle Does</h2>
+  <p>UniStyle is a text formatting tool that converts plain text into Unicode styles (bold, italic,
+  script, vaporwave, and more) that copy-paste into Discord, Notion, Twitter, Slack, and other apps.
+  All formatting is performed entirely within your browser using JavaScript — no text is ever sent
+  to any server.</p>
+
+  <h2>Data We Collect</h2>
+  <p>UniStyle collects <strong>no personal data</strong>. Specifically:</p>
+  <ul>
+    <li><strong>Text you type or paste</strong> — processed locally in your browser only. Never transmitted anywhere.</li>
+    <li><strong>No account or sign-in required</strong> — we have no user accounts and no way to identify you.</li>
+    <li><strong>No analytics</strong> — we do not use Google Analytics, tracking pixels, or any third-party analytics service.</li>
+    <li><strong>No cookies</strong> — UniStyle does not set any cookies.</li>
+  </ul>
+
+  <h2>Local Storage (Extension and Web App)</h2>
+  <p>UniStyle stores the following data <strong>locally on your device only</strong>, using
+  your browser's built-in storage:</p>
+  <ul>
+    <li><strong>Favorites</strong> — which text styles you have marked as favorites. Stored in
+    <code>localStorage</code> (web app) or <code>chrome.storage.local</code> (extension) under
+    the key <code>tf-favs</code>. Never leaves your device.</li>
+    <li><strong>Input history</strong> — the last 10 texts you formatted, stored locally under
+    <code>tf-hist</code> so you can quickly re-use them. Never leaves your device.</li>
+  </ul>
+  <p>This data is stored only on your device and is never transmitted to any server. You can
+  clear it at any time by clearing your browser's local storage or uninstalling the extension.</p>
+
+  <h2>Browser Extension — Permissions</h2>
+  <p>The UniStyle browser extension requests the following permissions:</p>
+  <ul>
+    <li><strong>contextMenus</strong> — adds a "Format with UniStyle" option when you right-click
+    selected text on any webpage. The selected text is read locally to display formatted previews.
+    It is never transmitted.</li>
+    <li><strong>activeTab</strong> — allows the extension to read selected text on the current tab
+    when you trigger the context menu. Only active when you explicitly use the right-click feature.
+    No background tab reading occurs.</li>
+    <li><strong>scripting</strong> — injects the formatting panel UI into the page when you use
+    the right-click feature. Used only to display the overlay panel in your browser.</li>
+    <li><strong>storage</strong> — saves your favorites and history locally on your device using
+    <code>chrome.storage.local</code>. Data stays on your device only.</li>
+  </ul>
+
+  <h2>Third-Party Services</h2>
+  <p>The UniStyle website may display advertisements served by Google AdSense. Google's ad serving
+  may use cookies and collect data subject to
+  <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>.
+  You can opt out of personalized advertising at
+  <a href="https://adssettings.google.com" target="_blank" rel="noopener">adssettings.google.com</a>.</p>
+  <p>The UniStyle browser extension does not display any advertisements and makes no third-party
+  network requests.</p>
+
+  <h2>Children's Privacy</h2>
+  <p>UniStyle does not knowingly collect any information from children under 13. The tool contains
+  no features directed at children and collects no personal data from any user.</p>
+
+  <h2>Changes to This Policy</h2>
+  <p>If this policy changes in a meaningful way (for example, if analytics or data collection is
+  added), the "Last updated" date at the top of this page will be updated and the change will be
+  noted in the extension's changelog. The current policy always lives at
+  <a href="https://unistyle.io/privacy">unistyle.io/privacy</a>.</p>
+
+  <h2>Contact</h2>
+  <p>Questions about this policy? Reach out via
+  <a href="https://ko-fi.com/abaker421" target="_blank" rel="noopener">Ko-fi</a> or open an issue
+  on the
+  <a href="https://github.com/abaker421/simple-text-formatter" target="_blank" rel="noopener">GitHub repository</a>.</p>
+</div>
+
+<footer class="site-footer">
+  <a href="/">← Back to UniStyle</a>
+  <a href="https://ko-fi.com/abaker421" target="_blank" rel="noopener">☕ Support</a>
+  <a href="https://github.com/abaker421/simple-text-formatter" target="_blank" rel="noopener">GitHub</a>
+</footer>
+
+</body>
+</html>
