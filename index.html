@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Text Formatter</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#2E5082" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:        #2E5082;
+      --primary-dark:   #1c3560;
+      --primary-light:  #3d6399;
+      --accent:         #A07020;
+      --accent-bg:      #FFF8E8;
+      --accent-border:  #d4a840;
+      --accent-hover:   #8a5f18;
+      --neutral:        #526070;
+      --bg:             #EFF2F7;
+      --white:          #FFFFFF;
+      --border:         #d0dcea;
+      --text-light:     #b8cce0;
+      --text-dark:      #1e2a38;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text-dark);
+    }
+
+    .app { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+    /* ── Header ─────────────────────────────────────────── */
+    .app-header {
+      background: var(--primary-dark);
+      border-bottom: 3px solid var(--accent);
+      flex-shrink: 0;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .header-title {
+      color: var(--white);
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .header-title .t-badge {
+      background: var(--accent);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 800;
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .header-actions { display: flex; gap: 8px; align-items: center; }
+    .btn-header {
+      background: rgba(255,255,255,0.12);
+      color: var(--text-light);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 6px;
+      padding: 5px 13px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+    .btn-header:hover { background: rgba(255,255,255,0.2); color: #fff; }
+    #installBtn { display: none; }
+
+    /* ── Two-panel layout ────────────────────────────────── */
+    .panels {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    /* ── Left panel ──────────────────────────────────────── */
+    .left-panel {
+      background: var(--primary);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border-right: 2px solid var(--primary-dark);
+    }
+    .panel-header { padding: 12px 16px 8px; flex-shrink: 0; }
+    .panel-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .left-panel .panel-label  { color: var(--text-light); }
+    .right-panel .panel-label { color: var(--neutral); }
+
+    .left-panel .panel-header { display: flex; flex-direction: column; gap: 7px; }
+    .header-top { display: flex; align-items: center; justify-content: space-between; }
+    .input-actions { display: flex; gap: 5px; }
+
+    .btn-input {
+      background: rgba(255,255,255,0.12);
+      color: var(--text-light);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 5px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      position: relative;
+    }
+    .btn-input:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+    /* ── Primary action row (Format Sentences) ───────────── */
+    .primary-action-row { padding-top: 1px; }
+    .btn-format-primary {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 7px 14px;
+      font-size: 12.5px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.15s, transform 0.08s;
+    }
+    .btn-format-primary:hover { background: var(--accent-hover); }
+    .btn-format-primary:active { transform: scale(0.99); }
+
+    /* ── Transform buttons ───────────────────────────────── */
+    .transform-row { display: flex; gap: 4px; flex-wrap: wrap; }
+    .btn-transform {
+      background: rgba(255,255,255,0.07);
+      color: rgba(245,240,232,0.5);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.12s, color 0.12s;
+      position: relative;
+    }
+    .btn-transform:hover { background: rgba(255,255,255,0.15); color: rgba(245,240,232,0.88); }
+    .btn-chars-toggle.open { background: rgba(255,255,255,0.22) !important; color: #fff !important; }
+
+    /* ── Special character buttons ───────────────────────── */
+    .special-chars-row {
+      display: none;
+      flex-wrap: wrap;
+      gap: 3px;
+      align-items: center;
+      padding-top: 1px;
+    }
+    .special-chars-row.open { display: flex; }
+    .chars-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: rgba(245,240,232,0.38);
+      flex-shrink: 0;
+      margin-right: 1px;
+      user-select: none;
+    }
+    .btn-special {
+      background: rgba(255,255,255,0.07);
+      color: rgba(245,240,232,0.72);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-size: 11.5px;
+      line-height: 1.5;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.1s, color 0.1s;
+    }
+    .btn-special:hover { background: rgba(255,255,255,0.22); color: #fff; }
+    .btn-special:active { transform: scale(0.9); }
+
+    #inputText {
+      flex: 1;
+      margin: 0 14px 0;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--text-dark);
+      font-size: 14px;
+      line-height: 1.6;
+      padding: 12px 14px;
+      resize: none;
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    #inputText::placeholder { color: #94a3b8; }
+    #inputText:focus { border-color: rgba(160,112,32,0.8); box-shadow: 0 0 0 2px rgba(160,112,32,0.28); }
+
+    /* ── Char counter ────────────────────────────────────── */
+    .char-counter {
+      padding: 4px 14px 2px;
+      font-size: 10.5px;
+      color: rgba(245,240,232,0.5);
+      flex-shrink: 0;
+    }
+
+    /* ── Character limit bar ─────────────────────────────── */
+    .limit-bar-wrap {
+      padding: 2px 14px 10px;
+      flex-shrink: 0;
+    }
+    .limit-bar-track {
+      position: relative;
+      height: 4px;
+      background: rgba(255,255,255,0.14);
+      border-radius: 99px;
+    }
+    .limit-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: #4ade80;
+      width: 0%;
+      transition: width 0.12s, background 0.2s;
+    }
+    .limit-marker {
+      position: absolute;
+      top: -3px;
+      width: 1.5px;
+      height: 10px;
+      background: rgba(255,255,255,0.35);
+      transform: translateX(-50%);
+    }
+    .limit-marker span {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 8px;
+      color: rgba(255,255,255,0.38);
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .limit-status {
+      margin-top: 16px;
+      font-size: 9.5px;
+      color: rgba(255,255,255,0.38);
+      letter-spacing: 0.02em;
+    }
+    .limit-exceeded { color: #fca5a5 !important; }
+
+    /* ── Right panel ─────────────────────────────────────── */
+    .right-panel {
+      background: var(--white);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .right-panel .panel-header {
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* ── Font size slider ────────────────────────────────── */
+    .size-ctrl {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .size-lbl {
+      color: var(--neutral);
+      font-weight: 700;
+      line-height: 1;
+      user-select: none;
+    }
+    .size-lbl-sm { font-size: 9px; }
+    .size-lbl-lg { font-size: 14px; }
+    #sizeSlider {
+      width: 58px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    /* ── Style search ────────────────────────────────────── */
+    .search-row {
+      padding: 6px 14px 2px;
+      flex-shrink: 0;
+    }
+    .style-search {
+      width: 100%;
+      padding: 5px 10px 5px 28px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: inherit;
+      color: var(--text-dark);
+      background: var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") 8px 50% / 14px no-repeat;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .style-search:focus {
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 2px rgba(46,80,130,0.12);
+    }
+    .style-search::placeholder { color: #94a3b8; }
+
+    /* ── Filter chips ────────────────────────────────────── */
+    .filter-chips { display: flex; gap: 6px; padding: 6px 14px 4px; flex-shrink: 0; }
+    .chip {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 11px;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--neutral);
+      cursor: pointer;
+      transition: background 0.12s, color 0.12s, border-color 0.12s;
+    }
+    .chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    #outputList {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 14px 8px;
+    }
+
+    /* ── Style rows ──────────────────────────────────────── */
+    .style-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 9px;
+      border-radius: 7px;
+      background: var(--bg);
+      margin-bottom: 5px;
+      border: 1px solid transparent;
+      transition: border-color 0.12s;
+    }
+    .style-row:hover { border-color: var(--accent-border); }
+
+    /* ── Pill cell (pill + compat dots) ─────────────────── */
+    .pill-cell { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; }
+    .style-pill {
+      font-size: 9.5px;
+      padding: 3px 9px;
+      background: var(--accent-bg);
+      color: var(--accent);
+      border: 1px solid var(--accent-border);
+      border-radius: 99px;
+      min-width: 80px;
+      text-align: center;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    /* ── Platform compat dots ────────────────────────────── */
+    .compat-row { display: flex; gap: 2px; }
+    .cd {
+      font-size: 7px;
+      font-weight: 800;
+      width: 14px;
+      height: 12px;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: default;
+      position: relative;
+      letter-spacing: 0;
+    }
+    .cd-2 { background: #dcfce7; color: #16a34a; border: 1px solid #86efac; }
+    .cd-1 { background: #fef9c3; color: #a16207; border: 1px solid #fde047; }
+    .cd-0 { background: #f1f5f9; color: #94a3b8; border: 1px solid #cbd5e1; }
+
+    .style-output {
+      flex: 1;
+      font-size: var(--output-size, 14px);
+      line-height: 1.5;
+      color: var(--text-dark);
+      word-break: break-word;
+      min-width: 0;
+    }
+    .style-output.placeholder { font-size: 12px; color: #bbb; font-style: italic; }
+
+    .copy-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 11px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.15s, transform 0.08s;
+      white-space: nowrap;
+    }
+    .copy-btn:hover { background: var(--accent-hover); }
+    .copy-btn:active { transform: scale(0.95); }
+    .copy-btn.copied { background: #2a7a3b; }
+
+    /* ── Heart / favorites ───────────────────────────────── */
+    .heart-btn {
+      background: transparent;
+      border: none;
+      color: var(--border);
+      font-size: 13px;
+      cursor: pointer;
+      padding: 2px 4px;
+      flex-shrink: 0;
+      line-height: 1;
+      transition: color 0.15s, transform 0.1s;
+    }
+    .heart-btn:hover { color: #d47a7a; }
+    .heart-btn.active { color: #d05050; }
+    .heart-btn:active { transform: scale(1.3); }
+
+    /* ── Zalgo slider ────────────────────────────────────── */
+    .zalgo-ctrl { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+    .zalgo-ctrl input[type=range] { width: 56px; accent-color: var(--accent); }
+    .zalgo-level { font-size: 9px; font-weight: 700; color: var(--accent); min-width: 40px; text-align: left; }
+
+    /* ── Combo builder ───────────────────────────────────── */
+    .combo-section {
+      flex-shrink: 0;
+      padding: 9px 14px 11px;
+      border-top: 2px solid var(--border);
+      background: #f4f7fe;
+    }
+    .combo-header { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+    .combo-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); }
+    .combo-subtitle { font-size: 10px; color: #94a3b8; }
+    .combo-controls { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+    .combo-select {
+      flex: 1;
+      font-size: 11px;
+      padding: 4px 6px;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      background: #fff;
+      color: var(--text-dark);
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .combo-plus { font-weight: 800; color: var(--neutral); font-size: 13px; flex-shrink: 0; }
+    .combo-pill { background: #e8f0fe; color: var(--primary); border-color: #b0c4de; min-width: 60px; }
+    .combo-row { margin-bottom: 0; }
+
+    /* ── History dropdown ────────────────────────────────── */
+    .hist-dropdown {
+      display: none;
+      position: fixed;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      min-width: 260px;
+      max-width: 340px;
+      max-height: 280px;
+      overflow-y: auto;
+      z-index: 1000;
+    }
+    .hist-header {
+      padding: 8px 12px 6px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--neutral);
+      border-bottom: 1px solid var(--border);
+    }
+    .hist-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-bottom: 1px solid var(--bg);
+      transition: background 0.1s;
+    }
+    .hist-item:last-child { border-bottom: none; }
+    .hist-item:hover { background: var(--bg); }
+    .hist-preview { flex: 1; font-size: 12px; color: var(--text-dark); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .hist-use {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 9px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.12s;
+    }
+    .hist-use:hover { background: var(--primary-light); }
+
+    /* ── Tooltips — rendered via JS portal (position:fixed bypasses all overflow:hidden) ── */
+    #tt-portal {
+      position: fixed;
+      background: #1a2535;
+      color: #fff;
+      font-size: 11px;
+      padding: 5px 10px;
+      border-radius: 5px;
+      pointer-events: none;
+      z-index: 9999;
+      max-width: 240px;
+      white-space: normal;
+      text-align: center;
+      line-height: 1.4;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    /* ── Footer ──────────────────────────────────────────── */
+    .app-footer {
+      background: var(--primary-dark);
+      border-top: 1px solid rgba(255,255,255,0.1);
+      flex-shrink: 0;
+      padding: 5px 16px;
+    }
+    .footer-note { font-size: 10.5px; color: rgba(255,255,255,0.45); }
+
+    /* ── Mobile ──────────────────────────────────────────── */
+    @media (max-width: 680px) {
+      .panels { grid-template-columns: 1fr; grid-template-rows: 50vh 1fr; }
+      .left-panel { border-right: none; border-bottom: 2px solid var(--primary-dark); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-title">
+      <div class="t-badge">T</div>
+      Text Formatter
+    </div>
+    <div class="header-actions">
+      <button id="installBtn" class="btn-header"
+        data-tip="Install as an app on your device for offline use">
+        ⬇ Install App
+      </button>
+    </div>
+  </header>
+
+  <!-- Panels -->
+  <div class="panels">
+
+    <!-- LEFT: Input -->
+    <div class="left-panel">
+      <div class="panel-header">
+        <div class="header-top">
+          <span class="panel-label">Text Format Options</span>
+          <div class="input-actions">
+            <button class="btn-input" id="histBtn"
+              data-tip="Browse your last 10 texts — entries auto-save as you type and on clear">
+              History
+            </button>
+            <button class="btn-input" id="clearBtn"
+              data-tip="Clear all text and reset every formatted preview on the right">
+              Clear
+            </button>
+          </div>
+        </div>
+        <div class="primary-action-row">
+          <button class="btn-format-primary" id="formatBtn"
+            data-tip="Smart sentence cleanup — fixes capitalization, removes extra spaces, and corrects punctuation spacing. Protects URLs, emails, and @mentions from being changed.">
+            ✦ Format Sentences
+          </button>
+        </div>
+        <div class="transform-row">
+          <button class="btn-transform" id="capsBtn"   data-tip="Convert all text to UPPERCASE">CAPS</button>
+          <button class="btn-transform" id="lowerBtn"  data-tip="Convert all text to lowercase">lower</button>
+          <button class="btn-transform" id="titleBtn"  data-tip="Capitalize the first letter of every word">Title Case</button>
+          <button class="btn-transform" id="stripBtn"  data-tip="Remove Unicode formatting — converts 𝐛𝐨𝐥𝐝, 𝓈𝒸𝓇𝒾𝓅𝓉, ｖａｐｏｒｗａｖｅ back to plain text">Strip Unicode</button>
+          <button class="btn-transform btn-chars-toggle" id="charsToggle"
+            aria-expanded="false" aria-controls="specialCharsRow"
+            data-tip="Show/hide special character insert buttons — em dash, smart quotes, arrows, math symbols, and more">Chars ▾</button>
+        </div>
+        <div class="special-chars-row" id="specialCharsRow">
+          <span class="chars-label">Insert:</span>
+          <button class="btn-special" data-char="—" data-tip="Em dash — long dash, great for parenthetical asides or replacing comma/semicolon">—</button>
+          <button class="btn-special" data-char="–" data-tip="En dash – used for ranges (2020–2024) and compound adjectives">–</button>
+          <button class="btn-special" data-char="…" data-tip="Ellipsis … one character, not three periods — cleaner and more semantic">…</button>
+          <button class="btn-special" data-char="&ldquo;" data-tip='Left double quote " (opening smart quote)'>&ldquo;</button>
+          <button class="btn-special" data-char="&rdquo;" data-tip='Right double quote " (closing smart quote)'>&rdquo;</button>
+          <button class="btn-special" data-char="&lsquo;" data-tip="Left single quote ' (opening smart quote)">&lsquo;</button>
+          <button class="btn-special" data-char="&rsquo;" data-tip="Right single quote ' (closing smart quote / apostrophe)">&rsquo;</button>
+          <button class="btn-special" data-char="©" data-tip="Copyright ©">©</button>
+          <button class="btn-special" data-char="®" data-tip="Registered trademark ®">®</button>
+          <button class="btn-special" data-char="™" data-tip="Trademark ™">™</button>
+          <button class="btn-special" data-char="°" data-tip="Degree symbol ° — temperature, angles, coordinates">°</button>
+          <button class="btn-special" data-char="•" data-tip="Bullet point •">•</button>
+          <button class="btn-special" data-char="→" data-tip="Right arrow →">→</button>
+          <button class="btn-special" data-char="←" data-tip="Left arrow ←">←</button>
+          <button class="btn-special" data-char="↑" data-tip="Up arrow ↑">↑</button>
+          <button class="btn-special" data-char="↓" data-tip="Down arrow ↓">↓</button>
+          <button class="btn-special" data-char="★" data-tip="Filled star ★">★</button>
+          <button class="btn-special" data-char="♥" data-tip="Heart ♥">♥</button>
+          <button class="btn-special" data-char="≠" data-tip="Not equal to ≠">≠</button>
+          <button class="btn-special" data-char="≈" data-tip="Approximately equal to ≈">≈</button>
+          <button class="btn-special" data-char="±" data-tip="Plus or minus ±">±</button>
+          <button class="btn-special" data-char="×" data-tip="Multiplication sign × (not the letter x)">×</button>
+          <button class="btn-special" data-char="÷" data-tip="Division sign ÷">÷</button>
+          <button class="btn-special" data-char="∞" data-tip="Infinity ∞">∞</button>
+          <button class="btn-special" data-char="π" data-tip="Pi π">π</button>
+        </div>
+      </div>
+      <textarea id="inputText"
+        placeholder="Type or paste your text here…&#10;&#10;Formatted versions appear on the right. Click Copy next to any style to grab it."
+        spellcheck="true"
+        autocorrect="on"
+      ></textarea>
+      <div class="char-counter" id="charCounter">0 chars · 0 words</div>
+      <div class="limit-bar-wrap">
+        <div class="limit-bar-track">
+          <div class="limit-bar-fill" id="limitBarFill"></div>
+          <div class="limit-marker" style="left:9.33%"><span>Twitter 280</span></div>
+          <div class="limit-marker" style="left:66.67%"><span>Discord 2k</span></div>
+          <div class="limit-marker" style="left:73.33%"><span>Instagram 2.2k</span></div>
+        </div>
+        <div class="limit-status" id="limitStatus">Twitter 280 · Discord 2,000 · Instagram 2,200</div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Output -->
+    <div class="right-panel">
+      <div class="panel-header">
+        <span class="panel-label">Formatted Styles</span>
+        <div class="size-ctrl" data-tip="Preview text size — does not affect the copied text">
+          <span class="size-lbl size-lbl-sm">A</span>
+          <input type="range" id="sizeSlider" min="11" max="22" step="1" value="14" />
+          <span class="size-lbl size-lbl-lg">A</span>
+        </div>
+      </div>
+      <div class="search-row">
+        <input type="search" id="styleSearch" class="style-search"
+          placeholder="Search styles — bold, script, zalgo…"
+          autocomplete="off" />
+      </div>
+      <div class="filter-chips">
+        <button class="chip active" data-filter="all" aria-pressed="true">All</button>
+        <button class="chip" data-filter="favs" aria-pressed="false">★ Favorites</button>
+      </div>
+      <div id="outputList"></div>
+
+      <!-- Combo builder -->
+      <div class="combo-section">
+        <div class="combo-header">
+          <span class="combo-title">Style Combiner</span>
+          <span class="combo-subtitle">Stack a modifier on any base style</span>
+        </div>
+        <div class="combo-controls">
+          <select id="comboBase" class="combo-select"></select>
+          <span class="combo-plus">+</span>
+          <select id="comboMod" class="combo-select">
+            <option value="none">No modifier</option>
+            <option value="strike">Strikethrough</option>
+            <option value="under">Underline</option>
+            <option value="over">Overline</option>
+            <option value="rev">Reverse</option>
+          </select>
+        </div>
+        <div class="style-row combo-row">
+          <div class="pill-cell">
+            <span class="style-pill combo-pill">Combo</span>
+          </div>
+          <span class="style-output placeholder" id="combo-out">Waiting for input…</span>
+          <button class="copy-btn" id="combo-copy"
+            data-tip="Copy this combined style to clipboard">Copy</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <span class="footer-note">Unicode styles copy-paste into Discord, Notion, Twitter, Slack, and more — the formatting travels with the text.</span>
+  </footer>
+
+  <!-- History dropdown -->
+  <div id="hist-dropdown" class="hist-dropdown"></div>
+
+  <!-- Screen reader announcements for copy actions -->
+  <div id="sr-announce" aria-live="polite" aria-atomic="true"
+    style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;"></div>
+
+  <!-- Tooltip portal — position:fixed, never clipped by parent overflow:hidden -->
+  <div id="tt-portal"></div>
+
+</div>
+
+<script>
+  'use strict';
+
+  /* ── Helpers ──────────────────────────────────────────── */
+  const cp = n => String.fromCodePoint(n);
+
+  function mapRange(text, ucBase, lcBase, dgBase) {
+    return [...text].map(ch => {
+      const c = ch.charCodeAt(0);
+      if (ch >= 'A' && ch <= 'Z') return cp(ucBase + c - 65);
+      if (ch >= 'a' && ch <= 'z') return cp(lcBase + c - 97);
+      if (dgBase != null && ch >= '0' && ch <= '9') return cp(dgBase + c - 48);
+      return ch;
+    }).join('');
+  }
+
+  /* ── Exception maps ───────────────────────────────────── */
+  const SCRIPT_LOWER = [
+    0x1D4B6,0x1D4B7,0x1D4B8,0x1D4B9,
+    0x212F,0x1D4BB,0x210A,
+    0x1D4BD,0x1D4BE,0x1D4BF,
+    0x1D4C0,0x1D4C1,0x1D4C2,0x1D4C3,
+    0x2134,
+    0x1D4C5,0x1D4C6,0x1D4C7,0x1D4C8,
+    0x1D4C9,0x1D4CA,0x1D4CB,0x1D4CC,
+    0x1D4CD,0x1D4CE,0x1D4CF
+  ];
+  const SCRIPT_UPPER = [
+    0x1D49C,0x212C,0x1D49E,0x1D49F,
+    0x2130,0x2131,0x1D4A2,0x210B,0x2110,
+    0x1D4A5,0x1D4A6,0x2112,0x2133,
+    0x1D4A9,0x1D4AA,0x1D4AB,0x1D4AC,
+    0x211B,
+    0x1D4AE,0x1D4AF,0x1D4B0,
+    0x1D4B1,0x1D4B2,0x1D4B3,0x1D4B4,
+    0x1D4B5
+  ];
+  const FRAKTUR_UPPER = [
+    0x1D504,0x1D505,0x212D,
+    0x1D507,0x1D508,0x1D509,0x1D50A,
+    0x210C,0x2111,
+    0x1D50D,0x1D50E,0x1D50F,
+    0x1D510,0x1D511,0x1D512,0x1D513,
+    0x1D514,0x211C,
+    0x1D516,0x1D517,0x1D518,
+    0x1D519,0x1D51A,0x1D51B,0x1D51C,
+    0x2128
+  ];
+  const DS_UPPER = [
+    0x1D538,0x1D539,0x2102,
+    0x1D53B,0x1D53C,0x1D53D,0x1D53E,
+    0x210D,
+    0x1D540,0x1D541,0x1D542,0x1D543,
+    0x1D544,0x2115,0x1D546,
+    0x2119,0x211A,0x211D,
+    0x1D54A,0x1D54B,0x1D54C,
+    0x1D54D,0x1D54E,0x1D54F,0x1D550,
+    0x2124
+  ];
+
+  const SMALL_CAPS = {
+    'a':'ᴀ','b':'ʙ','c':'ᴄ','d':'ᴅ','e':'ᴇ','f':'ꜰ','g':'ɢ','h':'ʜ',
+    'i':'ɪ','j':'ᴊ','k':'ᴋ','l':'ʟ','m':'ᴍ','n':'ɴ','o':'ᴏ','p':'ᴘ',
+    'q':'Q','r':'ʀ','s':'ꜱ','t':'ᴛ','u':'ᴜ','v':'ᴠ','w':'ᴡ','x':'x',
+    'y':'ʏ','z':'ᴢ'
+  };
+
+  const UPSIDE_DOWN = {
+    'a':'ɐ','b':'q','c':'ɔ','d':'p','e':'ǝ','f':'ɟ','g':'ƃ','h':'ɥ',
+    'i':'ᴉ','j':'ɾ','k':'ʞ','l':'ʅ','m':'ɯ','n':'u','o':'o','p':'d',
+    'q':'b','r':'ɹ','s':'s','t':'ʇ','u':'n','v':'ʌ','w':'ʍ','x':'x',
+    'y':'ʎ','z':'z',
+    'A':'∀','B':'ᗺ','C':'Ɔ','D':'ᗡ','E':'Ǝ','F':'Ⅎ','G':'פ','H':'H',
+    'I':'I','J':'ɾ','K':'ʞ','L':'⅂','M':'W','N':'N','O':'O','P':'d',
+    'Q':'Q','R':'ɹ','S':'S','T':'⊥','U':'∩','V':'Λ','W':'M','X':'X',
+    'Y':'ʎ','Z':'Z',
+    '0':'0','1':'⇂','2':'ᄅ','3':'Ɛ','4':'ᔭ','5':'ϛ','6':'9','7':'L',
+    '8':'8','9':'6','?':'¿','!':'¡','.':'˙'
+  };
+
+  const ZALGO_ABOVE = [0x300,0x301,0x302,0x303,0x304,0x305,0x306,0x307,0x308,0x309,
+    0x30A,0x30B,0x30C,0x30D,0x30E,0x30F,0x310,0x311,0x312,0x313,0x314,0x315];
+  const ZALGO_BELOW = [0x316,0x317,0x318,0x319,0x31A,0x31B,0x31C,0x31D,0x31E,0x31F,
+    0x320,0x321,0x322,0x323,0x324,0x325,0x326,0x327,0x328];
+
+  function zalgoText(text, level) {
+    const maxA = [2, 4, 8][level - 1] || 2;
+    const maxB = [1, 3, 5][level - 1] || 1;
+    const pick = arr => cp(arr[Math.floor(Math.random() * arr.length)]);
+    const rnd  = (arr, max) => Array.from({length: Math.floor(Math.random() * max) + 1}, () => pick(arr)).join('');
+    return [...text].map(ch => {
+      if (ch === ' ' || ch === '\n' || ch === '\t') return ch;
+      return ch + rnd(ZALGO_ABOVE, maxA) + rnd(ZALGO_BELOW, maxB);
+    }).join('');
+  }
+
+  /* ── Strip-Unicode map ────────────────────────────────── */
+  const STRIP_MAP = (() => {
+    const m = {};
+    const add = (base, asciiBase, count) => {
+      for (let i = 0; i < count; i++) m[cp(base + i)] = String.fromCharCode(asciiBase + i);
+    };
+    add(0x1D400,65,26); add(0x1D41A,97,26); add(0x1D7CE,48,10);
+    add(0x1D434,65,26); add(0x1D44E,97,26); m['ℎ']='h';
+    add(0x1D468,65,26); add(0x1D482,97,26);
+    add(0x1D5D4,65,26); add(0x1D5EE,97,26); add(0x1D7EC,48,10);
+    add(0x1D608,65,26); add(0x1D622,97,26);
+    add(0x1D63C,65,26); add(0x1D656,97,26);
+    add(0x1D670,65,26); add(0x1D68A,97,26); add(0x1D7F6,48,10);
+    SCRIPT_UPPER.forEach((c,i) => { m[cp(c)] = String.fromCharCode(65+i); });
+    SCRIPT_LOWER.forEach((c,i) => { m[cp(c)] = String.fromCharCode(97+i); });
+    FRAKTUR_UPPER.forEach((c,i) => { m[cp(c)] = String.fromCharCode(65+i); });
+    add(0x1D51E,97,26);
+    DS_UPPER.forEach((c,i) => { m[cp(c)] = String.fromCharCode(65+i); });
+    add(0x1D552,97,26); add(0x1D7D8,48,10);
+    for (let i=0;i<94;i++) m[cp(0xFF01+i)] = String.fromCharCode(0x21+i);
+    m['　']=' ';
+    Object.entries(SMALL_CAPS).forEach(([a,sc]) => { m[sc]=a; });
+    add(0x24B6,65,26); add(0x24D0,97,26);
+    m['⓪']='0';
+    for (let i=1;i<=9;i++) m[cp(0x2460+i-1)]=String(i);
+    Object.entries(UPSIDE_DOWN).forEach(([a,ud]) => { if (!m[ud]) m[ud]=a; });
+    return m;
+  })();
+
+  function stripUnicode(text) {
+    let r = text.replace(/[̀-ͯ]/g, '');
+    return [...r].map(ch => STRIP_MAP[ch] || ch).join('');
+  }
+
+  /* ── Combo modifiers ──────────────────────────────────── */
+  const COMBO_MODS = {
+    none:   null,
+    strike: t => [...t].map(c => c + '̶').join(''),
+    under:  t => [...t].map(c => c + '̲').join(''),
+    over:   t => [...t].map(c => c + '̅').join(''),
+    rev:    t => [...t].reverse().join(''),
+  };
+
+  /* ── Limit bar config ─────────────────────────────────── */
+  const LIMITS = [
+    { name: 'Twitter',   n: 280  },
+    { name: 'Discord',   n: 2000 },
+    { name: 'Instagram', n: 2200 },
+  ];
+  const BAR_MAX = 3000;
+
+  /* ── Styles ───────────────────────────────────────────── */
+  const STYLES = [
+    {
+      key:'bold', label:'Bold', compat:{d:2,t:2,n:2,s:0},
+      tip:'Mathematical bold — copies as actual bold Unicode characters into Discord, Slack, Notion, Twitter, and anywhere that renders Unicode.',
+      fn: t => mapRange(t,0x1D400,0x1D41A,0x1D7CE)
+    },
+    {
+      key:'italic', label:'Italic', compat:{d:2,t:2,n:2,s:0},
+      tip:'Mathematical italic — works anywhere Unicode renders, including social media profiles and bios where Markdown italic is stripped.',
+      fn: t => [...t].map(ch => {
+        if (ch==='h') return 'ℎ';
+        const c=ch.charCodeAt(0);
+        if (ch>='A'&&ch<='Z') return cp(0x1D434+c-65);
+        if (ch>='a'&&ch<='z') return cp(0x1D44E+c-97);
+        return ch;
+      }).join('')
+    },
+    {
+      key:'bolditalic', label:'Bold Italic', compat:{d:2,t:2,n:2,s:0},
+      tip:'Bold and italic combined — great for strong emphasis in plain-text environments that strip real Markdown formatting.',
+      fn: t => mapRange(t,0x1D468,0x1D482)
+    },
+    {
+      key:'boldsans', label:'Bold Sans', compat:{d:2,t:2,n:2,s:0},
+      tip:'Bold sans-serif — the same style WhatsApp renders for **bold** text, but as real Unicode so it works everywhere.',
+      fn: t => mapRange(t,0x1D5D4,0x1D5EE,0x1D7EC)
+    },
+    {
+      key:'italicsans', label:'Italic Sans', compat:{d:2,t:2,n:2,s:0},
+      tip:'Italic sans-serif — a clean slanted look that survives copy-paste across apps without losing its style.',
+      fn: t => mapRange(t,0x1D608,0x1D622)
+    },
+    {
+      key:'boldisans', label:'Bold Italic Sans', compat:{d:2,t:2,n:2,s:0},
+      tip:'Bold italic sans-serif — maximum weight and angle. Useful for headings or dramatic emphasis in profiles and bios.',
+      fn: t => mapRange(t,0x1D63C,0x1D656)
+    },
+    {
+      key:'under', label:'Underline', compat:{d:2,t:2,n:1,s:0},
+      tip:'Unicode combining underline (U+0332) attaches to every character. Renders in most modern apps — may appear inconsistent in Notion.',
+      fn: t => [...t].map(c=>c+'̲').join('')
+    },
+    {
+      key:'strike', label:'Strikethrough', compat:{d:2,t:2,n:1,s:0},
+      tip:'Unicode combining strikethrough (U+0336) — works in any Unicode-aware app, unlike ~~Markdown~~ which only works in a few.',
+      fn: t => [...t].map(c=>c+'̶').join('')
+    },
+    {
+      key:'mono', label:'Monospace', compat:{d:2,t:2,n:2,s:0},
+      tip:'Mathematical monospace — looks like code. Great for technical content, usernames, or a retro terminal aesthetic.',
+      fn: t => mapRange(t,0x1D670,0x1D68A,0x1D7F6)
+    },
+    {
+      key:'script', label:'Script', compat:{d:2,t:2,n:2,s:0},
+      tip:'Mathematical script / cursive — decorative and elegant. Popular for names, quotes, and creative writing.',
+      fn: t => [...t].map(ch => {
+        const c=ch.charCodeAt(0);
+        if (ch>='a'&&ch<='z') return cp(SCRIPT_LOWER[c-97]);
+        if (ch>='A'&&ch<='Z') return cp(SCRIPT_UPPER[c-65]);
+        return ch;
+      }).join('')
+    },
+    {
+      key:'fraktur', label:'Fraktur', compat:{d:2,t:2,n:1,s:0},
+      tip:'Mathematical Fraktur / Gothic — medieval blackletter style. Popular in metal, occult, and vintage-inspired aesthetics.',
+      fn: t => [...t].map(ch => {
+        const c=ch.charCodeAt(0);
+        if (ch>='a'&&ch<='z') return cp(0x1D51E+c-97);
+        if (ch>='A'&&ch<='Z') return cp(FRAKTUR_UPPER[c-65]);
+        return ch;
+      }).join('')
+    },
+    {
+      key:'dblstruck', label:'Double Struck', compat:{d:2,t:2,n:2,s:0},
+      tip:'Blackboard bold — used in math for real numbers (ℝ), integers (ℤ), naturals (ℕ). Also popular as a decorative style in bios.',
+      fn: t => [...t].map(ch => {
+        const c=ch.charCodeAt(0);
+        if (ch>='a'&&ch<='z') return cp(0x1D552+c-97);
+        if (ch>='A'&&ch<='Z') return cp(DS_UPPER[c-65]);
+        if (ch>='0'&&ch<='9') return cp(0x1D7D8+c-48);
+        return ch;
+      }).join('')
+    },
+    {
+      key:'fullwidth', label:'Vaporwave', compat:{d:2,t:2,n:2,s:1},
+      tip:'Ｆｕｌｌ－ｗｉｄｔｈ Unicode — the "aesthetic" style popular in bios and art posts. Also called wide text.',
+      fn: t => [...t].map(ch => {
+        const c=ch.charCodeAt(0);
+        if (c===0x20) return '　';
+        if (c>=0x21&&c<=0x7E) return cp(c+0xFEE0);
+        return ch;
+      }).join('')
+    },
+    {
+      key:'smallcaps', label:'Small Caps', compat:{d:2,t:2,n:2,s:1},
+      tip:'sᴍᴀʟʟ ᴄᴀᴘs — dedicated Unicode small-capital codepoints. Readable and polished for headers, titles, and bios.',
+      fn: t => [...t].map(ch=>SMALL_CAPS[ch.toLowerCase()]||ch).join('')
+    },
+    {
+      key:'bubble', label:'Bubble', compat:{d:2,t:2,n:2,s:1},
+      tip:'Ⓛⓔⓣⓣⓔⓡⓢ enclosed in open-circle Unicode characters. Popular for decorative lists, bios, and standings.',
+      fn: t => [...t].map(ch => {
+        const c=ch.charCodeAt(0);
+        if (ch>='A'&&ch<='Z') return cp(0x24B6+c-65);
+        if (ch>='a'&&ch<='z') return cp(0x24D0+c-97);
+        if (ch==='0') return '⓪';
+        if (ch>='1'&&ch<='9') return cp(0x2460+c-49);
+        return ch;
+      }).join('')
+    },
+    {
+      key:'upsidedown', label:'Upside Down', compat:{d:2,t:2,n:2,s:1},
+      tip:'ʇxǝʇ uʍop ǝpᴉsdn — each character is swapped with its rotated Unicode equivalent and the string is reversed.',
+      fn: t => [...t].reverse().map(ch=>UPSIDE_DOWN[ch]||ch).join('')
+    },
+    {
+      key:'reverse', label:'Reverse', compat:{d:2,t:2,n:2,s:2},
+      tip:'Reverses character order. Pairs well with other styles — try it in the Style Combiner below.',
+      fn: t => [...t].reverse().join('')
+    },
+    {
+      key:'altcase', label:'Alternating', compat:{d:2,t:2,n:2,s:2},
+      tip:'tHiS iS aLtErNaTiNg CaSe — spaces and punctuation are skipped, only letters alternate. Pure ASCII, works everywhere.',
+      fn: t => {
+        let i=0;
+        return [...t].map(ch => {
+          if (/[a-zA-Z]/.test(ch)) return (i++%2===0) ? ch.toLowerCase() : ch.toUpperCase();
+          return ch;
+        }).join('');
+      }
+    },
+    {
+      key:'zalgo', label:'Zalgo', compat:{d:2,t:1,n:0,s:0},
+      tip:'S̷t̸a̵c̶k̸s̵ random Unicode combining marks on each character. Adjust the intensity slider from subtle to full chaos.',
+      hasSlider: true,
+      fn: (t, level) => zalgoText(t, level||1)
+    }
+  ];
+
+  /* ── Styles lookup map (O(1) key → style object) ────── */
+  const STYLES_MAP = Object.fromEntries(STYLES.map(s => [s.key, s]));
+
+  /* ── Cached output element refs (populated in buildRows) */
+  const outputEls = {};
+  let zalgoSlider = null;
+
+  /* ── Format Sentences ────────────────────────────────── */
+  function formatSentences(text) {
+    const saved=[], save=m=>{saved.push(m);return '\x01'+(saved.length-1)+'\x01';};
+    let s=text
+      .replace(/https?:\/\/[^\s]+/gi,save)
+      .replace(/www\.[^\s]+/gi,save)
+      .replace(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g,save)
+      .replace(/@[a-zA-Z0-9_]+/g,save)
+      .replace(/\b(?:[a-zA-Z0-9][a-zA-Z0-9-]*\.)+(?:com|net|org|edu|gov|mil|int|biz|info|io|co|app|dev|ai|me|tv|us|uk|ca|au|de|fr|it|es|ru|jp|cn|br|mx|in|nz|se|no|dk|nl|be|ch|at|pl|pt|gr|sg|hk|za|ng|ar|html|htm|pdf|js|ts|css|json|xml|txt|md|py|rb|php|java|go|svg|png|jpg|jpeg|gif|mp4|mp3|zip|tar|gz|csv|sql|sh|bat|yml|yaml|toml|cfg|conf|log|docx|xlsx|pptx)(?=[^a-zA-Z0-9-]|$)/gi,save);
+    s=s.replace(/[^\S\n]+/g,' ');
+    s=s.replace(/ ([.?!,;:])/g,'$1');
+    s=s.replace(/([.?!])([A-Za-z\x01])/g,'$1 $2');
+    s=s.replace(/([,;:])([^\s\n])/g,'$1 $2');
+    s=s.replace(/^[ \t]*([a-z])/,c=>c.toUpperCase());
+    s=s.replace(/([.?!][ \t]+)([a-z])/g,(_,p,c)=>p+c.toUpperCase());
+    s=s.replace(/\n[ \t]*([a-z])/g,(_,c)=>'\n'+c.toUpperCase());
+    s=s.replace(/\x01(\d+)\x01/g,(_,i)=>saved[+i]);
+    return s.trim();
+  }
+
+  /* ── DOM refs ────────────────────────────────────────── */
+  const inputEl      = document.getElementById('inputText');
+  const outputList   = document.getElementById('outputList');
+  const formatBtn    = document.getElementById('formatBtn');
+  const clearBtn     = document.getElementById('clearBtn');
+  const histBtn      = document.getElementById('histBtn');
+  const capsBtn      = document.getElementById('capsBtn');
+  const lowerBtn     = document.getElementById('lowerBtn');
+  const titleBtn     = document.getElementById('titleBtn');
+  const stripBtn     = document.getElementById('stripBtn');
+  const charsToggle  = document.getElementById('charsToggle');
+  const specialCharsRow = document.getElementById('specialCharsRow');
+  const installBtn   = document.getElementById('installBtn');
+  const charCounter  = document.getElementById('charCounter');
+  const limitBarFill = document.getElementById('limitBarFill');
+  const limitStatus  = document.getElementById('limitStatus');
+  const sizeSlider   = document.getElementById('sizeSlider');
+  const styleSearch  = document.getElementById('styleSearch');
+  const comboBase    = document.getElementById('comboBase');
+  const comboMod     = document.getElementById('comboMod');
+  const comboCopy    = document.getElementById('combo-copy');
+  const comboOut     = document.getElementById('combo-out');
+  const srAnnounce   = document.getElementById('sr-announce');
+  const histDropdown = document.getElementById('hist-dropdown');
+  const filterChips  = document.querySelectorAll('.chip[data-filter]');
+
+  /* ── Favorites ───────────────────────────────────────── */
+  let favorites = new Set(JSON.parse(localStorage.getItem('tf-favs') || '[]'));
+  let activeFilter = 'all';
+
+  function saveFavorites() { localStorage.setItem('tf-favs',JSON.stringify([...favorites])); }
+
+  function toggleFavorite(key, btn) {
+    favorites.has(key) ? favorites.delete(key) : favorites.add(key);
+    btn.classList.toggle('active', favorites.has(key));
+    saveFavorites();
+    applyVisibility();
+  }
+
+  /* ── Unified visibility (search + filter chip) ────────── */
+  function applyVisibility() {
+    const q = styleSearch.value.toLowerCase().trim();
+    const rows = document.querySelectorAll('.style-row[data-key]');
+    rows.forEach(row => {
+      const key = row.dataset.key;
+      const style = STYLES_MAP[key];
+      let show;
+      if (q) {
+        show = style && (style.label.toLowerCase().includes(q) || style.key.toLowerCase().includes(q));
+      } else {
+        show = activeFilter === 'all' || favorites.has(key);
+      }
+      row.style.display = show ? '' : 'none';
+    });
+
+    // No-favs message
+    const noFavsNeeded = !q && activeFilter === 'favs' && favorites.size === 0;
+    let noFavMsg = document.getElementById('no-favs-msg');
+    if (noFavsNeeded) {
+      if (!noFavMsg) {
+        noFavMsg = document.createElement('p');
+        noFavMsg.id = 'no-favs-msg';
+        noFavMsg.style.cssText = 'font-size:12px;color:#bbb;padding:12px 4px;font-style:italic;';
+        noFavMsg.textContent = 'No favorites yet — click ♥ on any style to pin it here.';
+        outputList.prepend(noFavMsg);
+      }
+      noFavMsg.style.display = '';
+    } else if (noFavMsg) { noFavMsg.style.display = 'none'; }
+
+    // No-search-results message
+    const visible = [...rows].some(r => r.style.display !== 'none');
+    let noSearchMsg = document.getElementById('no-search-msg');
+    if (q && !visible) {
+      if (!noSearchMsg) {
+        noSearchMsg = document.createElement('p');
+        noSearchMsg.id = 'no-search-msg';
+        noSearchMsg.style.cssText = 'font-size:12px;color:#bbb;padding:12px 4px;font-style:italic;';
+        noSearchMsg.textContent = 'No styles match that search.';
+        outputList.prepend(noSearchMsg);
+      }
+      noSearchMsg.style.display = '';
+    } else if (noSearchMsg) { noSearchMsg.style.display = 'none'; }
+  }
+
+  /* ── History ─────────────────────────────────────────── */
+  let histIsOpen = false;
+
+  function saveToHistory(text) {
+    if (!text || text.trim().length < 5) return;
+    let hist = getHistory();
+    hist = hist.filter(h => h.text !== text);
+    hist.unshift({ text, ts: Date.now() });
+    localStorage.setItem('tf-hist', JSON.stringify(hist.slice(0, 10)));
+  }
+  function getHistory() {
+    try { return JSON.parse(localStorage.getItem('tf-hist') || '[]'); }
+    catch { return []; }
+  }
+  function buildHistoryContent() {
+    histDropdown.innerHTML = '';
+    const hdr = document.createElement('div');
+    hdr.className = 'hist-header'; hdr.textContent = 'Recent Texts';
+    histDropdown.appendChild(hdr);
+    const hist = getHistory();
+    if (!hist.length) {
+      const e = document.createElement('p');
+      e.style.cssText = 'padding:12px;font-size:12px;color:#888;font-style:italic;';
+      e.textContent = 'Nothing saved yet. Texts auto-save as you use the tool.';
+      histDropdown.appendChild(e); return;
+    }
+    hist.forEach(h => {
+      const item = document.createElement('div'); item.className = 'hist-item';
+      const prev = document.createElement('span'); prev.className = 'hist-preview';
+      const raw = h.text.replace(/\n/g,' ').trim();
+      prev.textContent = raw.length > 68 ? raw.slice(0,68)+'…' : raw;
+      const btn = document.createElement('button'); btn.className = 'hist-use'; btn.textContent = 'Use';
+      btn.addEventListener('click', () => { inputEl.value = h.text; updateOutputs(); closeHistory(); inputEl.focus(); });
+      item.append(prev, btn); histDropdown.appendChild(item);
+    });
+  }
+  function openHistory() {
+    histIsOpen = true;
+    buildHistoryContent();
+    const r = histBtn.getBoundingClientRect();
+    histDropdown.style.top  = (r.bottom+4)+'px';
+    histDropdown.style.right = (window.innerWidth-r.right)+'px';
+    histDropdown.style.left = 'auto';
+    histDropdown.style.display = 'block';
+    setTimeout(() => document.addEventListener('click', histOutside), 0);
+  }
+  function closeHistory() {
+    histIsOpen = false;
+    histDropdown.style.display = 'none';
+    document.removeEventListener('click', histOutside);
+  }
+  function histOutside(e) { if (!histDropdown.contains(e.target) && e.target !== histBtn) closeHistory(); }
+
+  /* ── Build rows ──────────────────────────────────────── */
+  const PLAT = [{k:'d',l:'Discord'},{k:'t',l:'Twitter/X'},{k:'n',l:'Notion'},{k:'s',l:'SMS'}];
+  const COMPAT_LABEL = ['Limited','Partial','Full'];
+
+  function buildRows() {
+    outputList.innerHTML = '';
+    comboBase.innerHTML = STYLES.filter(s=>!s.hasSlider).map(s=>`<option value="${s.key}">${s.label}</option>`).join('');
+    STYLES.forEach(style => {
+      const row = document.createElement('div');
+      row.className = 'style-row'; row.dataset.key = style.key;
+
+      const pillCell = document.createElement('div'); pillCell.className = 'pill-cell';
+      const pill = document.createElement('span'); pill.className = 'style-pill'; pill.textContent = style.label;
+      pillCell.appendChild(pill);
+      if (style.compat) {
+        const cr = document.createElement('div'); cr.className = 'compat-row';
+        PLAT.forEach(p => {
+          const dot = document.createElement('span');
+          const lv = style.compat[p.k];
+          dot.className = 'cd cd-'+lv; dot.textContent = p.k.toUpperCase();
+          dot.setAttribute('data-tip', p.l+': '+COMPAT_LABEL[lv]);
+          cr.appendChild(dot);
+        });
+        pillCell.appendChild(cr);
+      }
+
+      const out = document.createElement('span');
+      out.className = 'style-output placeholder'; out.id = 'out-'+style.key; out.textContent = 'Waiting for input…';
+      outputEls[style.key] = out;
+
+      const heartBtn = document.createElement('button');
+      heartBtn.className = 'heart-btn'+(favorites.has(style.key)?' active':'');
+      heartBtn.setAttribute('aria-label','Favorite '+style.label); heartBtn.textContent = '♥';
+      heartBtn.addEventListener('click', () => toggleFavorite(style.key, heartBtn));
+
+      const copyBtn = document.createElement('button');
+      copyBtn.className = 'copy-btn'; copyBtn.textContent = 'Copy';
+      copyBtn.setAttribute('data-tip', style.tip);
+      copyBtn.addEventListener('click', () => copyStyle(style.key, copyBtn));
+
+      if (style.hasSlider) {
+        const ctrl = document.createElement('div'); ctrl.className = 'zalgo-ctrl';
+        const slider = document.createElement('input');
+        slider.type='range'; slider.min=1; slider.max=3; slider.step=1; slider.value=1; slider.id='zalgo-slider';
+        zalgoSlider = slider;
+        const lvlLbl = document.createElement('span'); lvlLbl.className='zalgo-level'; lvlLbl.id='zalgo-val';
+        const LEVELS=['Subtle','Medium','Chaos']; lvlLbl.textContent=LEVELS[0];
+        slider.addEventListener('input', () => {
+          lvlLbl.textContent = LEVELS[parseInt(slider.value)-1];
+          const raw = inputEl.value;
+          if (raw.trim()) { out.textContent=zalgoText(raw,parseInt(slider.value)); out.className='style-output'; }
+        });
+        ctrl.append(slider, lvlLbl); row.append(pillCell, ctrl, out, heartBtn, copyBtn);
+      } else {
+        row.append(pillCell, out, heartBtn, copyBtn);
+      }
+      outputList.appendChild(row);
+    });
+    applyVisibility();
+  }
+
+  /* ── Char counter + limit bar ────────────────────────── */
+  function updateCounter() {
+    const raw = inputEl.value;
+    const chars = [...raw].length;
+    const words = raw.trim() ? raw.trim().split(/\s+/).length : 0;
+    charCounter.textContent = chars.toLocaleString() + ' chars · ' + words.toLocaleString() + ' words';
+    updateLimitBar(chars);
+  }
+
+  function updateLimitBar(chars) {
+    if (!limitBarFill) return;
+    limitBarFill.style.width = Math.min(chars / BAR_MAX * 100, 100) + '%';
+
+    const active = LIMITS.find(l => chars <= l.n);
+
+    let color = '#4ade80';
+    if (active) {
+      const pct = chars / active.n;
+      if (pct > 0.9) color = '#f87171';
+      else if (pct > 0.75) color = '#fb923c';
+    } else { color = '#f87171'; }
+    limitBarFill.style.background = color;
+
+    if (!limitStatus) return;
+    if (chars === 0) {
+      limitStatus.textContent = 'Twitter 280 · Discord 2,000 · Instagram 2,200';
+      limitStatus.classList.remove('limit-exceeded');
+    } else if (active) {
+      const remaining = active.n - chars;
+      limitStatus.textContent = remaining + ' left for ' + active.name + ' (' + active.n.toLocaleString() + ' char limit)';
+      limitStatus.classList.toggle('limit-exceeded', remaining < active.n * 0.1);
+    } else {
+      limitStatus.textContent = 'Over all limits — Twitter · Discord · Instagram';
+      limitStatus.classList.add('limit-exceeded');
+    }
+  }
+
+  /* ── Combo ───────────────────────────────────────────── */
+  function updateCombo() {
+    const out = comboOut;
+    if (!out) return;
+    const raw = inputEl.value;
+    if (!raw.trim()) { out.textContent='Waiting for input…'; out.className='style-output placeholder'; return; }
+    const baseStyle = STYLES.find(s => s.key === comboBase.value);
+    if (!baseStyle) return;
+    let result = baseStyle.fn(raw);
+    const modFn = COMBO_MODS[comboMod.value];
+    if (modFn) result = modFn(result);
+    out.textContent = result; out.className = 'style-output';
+  }
+
+  /* ── Update all outputs ──────────────────────────────── */
+  function updateOutputs() {
+    const raw = inputEl.value;
+    updateCounter();
+    STYLES.forEach(style => {
+      const el = outputEls[style.key];
+      if (!el) return;
+      if (!raw.trim()) { el.textContent='Waiting for input…'; el.className='style-output placeholder'; }
+      else {
+        const level = style.hasSlider ? (parseInt(zalgoSlider?.value)||1) : undefined;
+        el.textContent = style.fn(raw,level); el.className = 'style-output';
+      }
+    });
+    updateCombo();
+  }
+
+  /* ── Copy ────────────────────────────────────────────── */
+  function copyStyle(key, btn) {
+    const el = outputEls[key];
+    if (!el||el.classList.contains('placeholder')) return;
+    navigator.clipboard.writeText(el.textContent).then(() => {
+      const orig=btn.textContent; btn.textContent='✓ Copied'; btn.classList.add('copied');
+      srAnnounce.textContent = STYLES_MAP[key]?.label + ' style copied';
+      setTimeout(()=>{ btn.textContent=orig; btn.classList.remove('copied'); srAnnounce.textContent=''; },1500);
+    });
+  }
+
+  /* ── Event listeners ─────────────────────────────────── */
+  formatBtn.addEventListener('click', () => { saveToHistory(inputEl.value); inputEl.value=formatSentences(inputEl.value); updateOutputs(); });
+  clearBtn.addEventListener('click',  () => { saveToHistory(inputEl.value); inputEl.value=''; updateOutputs(); inputEl.focus(); });
+  histBtn.addEventListener('click', e => { e.stopPropagation(); histIsOpen ? closeHistory() : openHistory(); });
+  capsBtn.addEventListener('click',   () => { inputEl.value=inputEl.value.toUpperCase(); updateOutputs(); });
+  lowerBtn.addEventListener('click',  () => { inputEl.value=inputEl.value.toLowerCase(); updateOutputs(); });
+  titleBtn.addEventListener('click',  () => { inputEl.value=inputEl.value.replace(/\b\w/g,c=>c.toUpperCase()); updateOutputs(); });
+  stripBtn.addEventListener('click',  () => { inputEl.value=stripUnicode(inputEl.value); updateOutputs(); });
+
+  /* ── Chars toggle ────────────────────────────────────── */
+  charsToggle.addEventListener('click', () => {
+    const open = specialCharsRow.classList.toggle('open');
+    charsToggle.classList.toggle('open', open);
+    charsToggle.textContent = open ? 'Chars ▴' : 'Chars ▾';
+    charsToggle.setAttribute('aria-expanded', String(open));
+  });
+
+  /* ── JS tooltip portal ───────────────────────────────── */
+  const ttPortal = document.getElementById('tt-portal');
+  let ttActive = null;
+
+  document.addEventListener('mouseover', e => {
+    const t = e.target.closest('[data-tip]');
+    if (!t || t === ttActive) return;
+    ttActive = t;
+    ttPortal.textContent = t.dataset.tip;
+    ttPortal.style.display = 'block';
+    ttPortal.style.opacity = '0';
+    requestAnimationFrame(() => {
+      const r  = t.getBoundingClientRect();
+      const tw = ttPortal.offsetWidth;
+      const th = ttPortal.offsetHeight;
+      // Prefer below; fall back to above if not enough space
+      const top = (window.innerHeight - r.bottom > th + 12)
+        ? r.bottom + 5
+        : r.top - th - 8;
+      let left = r.left + r.width / 2 - tw / 2;
+      left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));
+      ttPortal.style.top  = top  + 'px';
+      ttPortal.style.left = left + 'px';
+      ttPortal.style.opacity = '1';
+    });
+  });
+  document.addEventListener('mouseout', e => {
+    if (!ttActive || ttActive.contains(e.relatedTarget)) return;
+    ttActive = null;
+    ttPortal.style.opacity = '0';
+    setTimeout(() => { if (ttPortal.style.opacity === '0') ttPortal.style.display = 'none'; }, 160);
+  });
+
+  /* ── Special character insert ─────────────────────────── */
+  function insertAtCursor(char) {
+    const s = inputEl.selectionStart ?? inputEl.value.length;
+    const e = inputEl.selectionEnd   ?? inputEl.value.length;
+    const v = inputEl.value;
+    inputEl.value = v.slice(0, s) + char + v.slice(e);
+    // focus() before setting cursor — some browsers reset selection on focus()
+    inputEl.focus();
+    inputEl.selectionStart = inputEl.selectionEnd = s + char.length;
+    updateOutputs();
+  }
+  document.querySelectorAll('.btn-special').forEach(btn => {
+    btn.addEventListener('click', () => insertAtCursor(btn.dataset.char));
+  });
+
+  styleSearch.addEventListener('input', applyVisibility);
+  styleSearch.addEventListener('search', applyVisibility); // fires on clear (×) click
+
+  sizeSlider.addEventListener('input', () => {
+    outputList.style.setProperty('--output-size', sizeSlider.value+'px');
+    document.querySelector('.combo-section').style.setProperty('--output-size', sizeSlider.value+'px');
+  });
+
+  comboBase.addEventListener('change', updateCombo);
+  comboMod.addEventListener('change',  updateCombo);
+
+  comboCopy.addEventListener('click', () => {
+    const out = comboOut;
+    if (!out||out.classList.contains('placeholder')) return;
+    navigator.clipboard.writeText(out.textContent).then(() => {
+      const orig=comboCopy.textContent; comboCopy.textContent='✓ Copied'; comboCopy.classList.add('copied');
+      srAnnounce.textContent = 'Combo style copied';
+      setTimeout(()=>{ comboCopy.textContent=orig; comboCopy.classList.remove('copied'); srAnnounce.textContent=''; },1500);
+    });
+  });
+
+  filterChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      filterChips.forEach(c=>{ c.classList.remove('active'); c.setAttribute('aria-pressed','false'); });
+      chip.classList.add('active');
+      chip.setAttribute('aria-pressed','true');
+      activeFilter = chip.dataset.filter;
+      styleSearch.value = ''; // clear search when switching tabs
+      applyVisibility();
+    });
+  });
+
+  inputEl.addEventListener('blur', () => saveToHistory(inputEl.value));
+
+  let rafId;
+  inputEl.addEventListener('input', () => { cancelAnimationFrame(rafId); rafId = requestAnimationFrame(updateOutputs); });
+
+  /* ── PWA install ─────────────────────────────────────── */
+  let deferredInstallPrompt = null;
+  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstallPrompt=e; installBtn.style.display='block'; });
+  installBtn.addEventListener('click', async () => {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    const r = await deferredInstallPrompt.userChoice;
+    if (r.outcome==='accepted') installBtn.style.display='none';
+    deferredInstallPrompt=null;
+  });
+  window.addEventListener('appinstalled', ()=>{ installBtn.style.display='none'; });
+
+  /* ── Service worker ──────────────────────────────────── */
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', ()=>{ navigator.serviceWorker.register('./sw.js').catch(()=>{}); });
+  }
+
+  /* ── Init ────────────────────────────────────────────── */
+  buildRows();
+  updateOutputs();
+</script>
+</body>
+</html>

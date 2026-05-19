@@ -1,0 +1,19 @@
+{
+  "name": "Text Formatter",
+  "short_name": "TextFmt",
+  "description": "Convert text to Unicode styles that copy and paste across apps — Discord, Notion, Twitter, email, and more.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1c3560",
+  "theme_color": "#2E5082",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["utilities", "productivity"]
+}
