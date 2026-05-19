@@ -69,6 +69,8 @@
       align-items: center;
       justify-content: center;
     }
+    .header-title .title-text { display: flex; flex-direction: column; line-height: 1.1; }
+    .header-title .title-tagline { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.6); letter-spacing: 0.01em; }
     .header-actions { display: flex; gap: 8px; align-items: center; }
     .btn-header {
       background: rgba(255,255,255,0.12);
@@ -564,7 +566,10 @@
   <header class="app-header">
     <div class="header-title">
       <div class="t-badge">U</div>
-      UniStyle
+      <div class="title-text">
+        <span>UniStyle</span>
+        <span class="title-tagline">a universal text editor</span>
+      </div>
     </div>
     <div class="header-actions">
       <button id="installBtn" class="btn-header"
