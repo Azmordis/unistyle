@@ -282,7 +282,10 @@
     .btn-special:active { transform: scale(0.9); }
 
     #inputText {
-      flex: 1;
+      flex: 0 1 auto;
+      height: 180px;
+      min-height: 140px;
+      max-height: 50vh;
       margin: 0 14px 0;
       border: 1.5px solid var(--border);
       border-radius: 8px;
@@ -293,8 +296,9 @@
       padding: 12px 14px;
       resize: none;
       outline: none;
+      overflow-y: auto;
       font-family: inherit;
-      transition: border-color 0.15s, box-shadow 0.15s;
+      transition: border-color 0.15s, box-shadow 0.15s, height 0.12s ease-out;
     }
     #inputText::placeholder { color: #94a3b8; }
     #inputText:focus { border-color: rgba(160,112,32,0.8); box-shadow: 0 0 0 2px rgba(160,112,32,0.28); }
@@ -634,6 +638,14 @@
     @media (max-width: 680px) {
       .panels { grid-template-columns: 1fr; grid-template-rows: 50vh 1fr; }
       .left-panel { border-right: none; border-bottom: 2px solid var(--primary-dark); }
+      /* Hide the per-marker text labels on the limit bar - they overlap at narrow widths.
+         The .limit-status row below shows the same platform-limits info readably. */
+      .limit-marker span { display: none; }
+      /* Restore flex-fill textarea on mobile so it adapts to the 50vh left-panel cell.
+         Desktop sizing (compact 180px default + auto-grow) doesn't fit mobile's smaller cell. */
+      #inputText { flex: 1 1 auto; height: auto; min-height: 0; max-height: none; }
+      /* Tighten limit-status so the platform list wraps cleanly if needed */
+      .limit-status { font-size: 10px; line-height: 1.4; word-spacing: 0.05em; }
     }
 
     /* Tier 2 Group B - 2026-05-20 - FAQ + a11y primitives */
@@ -659,7 +671,7 @@
     .skip-link:focus { left: 8px; top: 8px; }
 
     /* FAQ section */
-    .faq-section { background: var(--bg); padding: 48px 20px 64px; color: var(--text-dark); }
+    .faq-section { background: var(--bg); padding: 48px 20px 64px; color: var(--text-dark); border-top: 3px solid #A07020; }
     .faq-container { max-width: 720px; margin: 0 auto; }
     .faq-section-heading { font-size: 22px; font-weight: 700; color: var(--primary); margin-bottom: 24px; text-align: center; }
     .faq-item { background: var(--white, #fff); border: 1px solid var(--border, #d0dcea); border-radius: 10px; padding: 14px 22px; margin-bottom: 14px; box-shadow: 0 1px 2px rgba(28, 53, 96, 0.04); }
@@ -1331,6 +1343,24 @@
 
   let rafId;
   inputEl.addEventListener('input', () => { cancelAnimationFrame(rafId); rafId = requestAnimationFrame(updateOutputs); });
+
+  /* ── Textarea auto-grow ──────────────────────────────── */
+  /* Compact default (180px), expands with content up to max-height (50vh).
+     CSS max-height caps the growth; overflow-y:auto scrolls beyond that. */
+  function autoGrowInput() {
+    // Reset to baseline so scrollHeight reflects content, not previous expansion
+    inputEl.style.height = 'auto';
+    const next = Math.max(140, inputEl.scrollHeight);
+    inputEl.style.height = next + 'px';
+  }
+  inputEl.addEventListener('input', autoGrowInput);
+  // Also auto-grow when transform buttons / format / paste change the value
+  ['capsBtn','lowerBtn','titleBtn','stripBtn','formatBtn','clearBtn'].forEach(id => {
+    const b = document.getElementById(id);
+    if (b) b.addEventListener('click', () => requestAnimationFrame(autoGrowInput));
+  });
+  // Initial sizing on load
+  requestAnimationFrame(autoGrowInput);
 
   /* ── PWA install ─────────────────────────────────────── */
   let deferredInstallPrompt = null;
