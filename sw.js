@@ -1,14 +1,16 @@
-// UniStyle — Service Worker
+// UniStyle - Service Worker
 // Strategy: network-first for index.html (updates reach users immediately);
-//           cache-first for everything else (icons, manifest — rarely change).
+//           cache-first for everything else (icons, manifest - rarely change).
 
-const CACHE_NAME = 'unistyle-v1';
+const CACHE_NAME = 'unistyle-v2';
 
 const ASSETS = [
   './',
   './index.html',
+  './engine.js',
   './manifest.json',
-  './icon.svg'
+  './icon.svg',
+  './privacy.html'
 ];
 
 // On install: cache all static assets
@@ -51,9 +53,19 @@ self.addEventListener('fetch', event => {
         .catch(() => caches.match(event.request))
     );
   } else {
-    // Cache-first: icons, manifest, etc. change rarely
+    // Cache-first: icons, manifest, etc. change rarely.
+    // On miss, fetch from network AND write to cache so subsequent offline visits work.
     event.respondWith(
-      caches.match(event.request).then(cached => cached || fetch(event.request))
+      caches.match(event.request).then(cached => {
+        if (cached) return cached;
+        return fetch(event.request).then(response => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          }
+          return response;
+        });
+      })
     );
   }
 });

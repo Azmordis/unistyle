@@ -1,17 +1,17 @@
-/* Text Formatter — Shared Engine
+/* UniStyle - Shared Engine
  *
  * Single source of truth for all Unicode style transforms, used by both
  * the web app (index.html) and the browser extension (popup).
  *
  * Exposed on window/globalThis:
- *   STYLES, STYLES_MAP   — array + lookup of all 19 styles
- *   formatSentences      — primary "clean up" transform
- *   stripUnicode         — convert fancy Unicode back to ASCII
- *   zalgoText            — combining-mark stacker (used inside STYLES too)
- *   cp, mapRange         — helpers
+ *   STYLES, STYLES_MAP   - array + lookup of all 22 styles
+ *   formatSentences      - primary "clean up" transform
+ *   stripUnicode         - convert fancy Unicode back to ASCII
+ *   zalgoText            - combining-mark stacker (used inside STYLES too)
+ *   cp, mapRange         - helpers
  *
  * When updating the engine, edit THIS FILE ONLY. The extension folder
- * keeps a copy — sync it with `copy engine.js ..\text-formatter-extension\`.
+ * keeps a copy - sync it with `copy engine.js ..\unistyle-extension\`.
  */
 'use strict';
 
@@ -279,6 +279,51 @@ const STYLES = [
     tip:'S̷t̸a̵c̶k̸s̵ random Unicode combining marks on each character. Adjust the intensity slider from subtle to full chaos.',
     hasSlider: true,
     fn: (t, level) => zalgoText(t, level||1)
+  },
+  {
+    key:'subscript', label:'Subscript', compat:{d:2,t:2,n:2,s:0},
+    tip:'Subscript Unicode (H₂O, x₁). Letter coverage is partial because Unicode does not define a full subscript alphabet. Unsupported letters pass through unchanged.',
+    fn: t => {
+      const subDigits = '₀₁₂₃₄₅₆₇₈₉';
+      const subLetters = {
+        a:'ₐ', e:'ₑ', h:'ₕ', i:'ᵢ', j:'ⱼ', k:'ₖ', l:'ₗ', m:'ₘ', n:'ₙ',
+        o:'ₒ', p:'ₚ', r:'ᵣ', s:'ₛ', t:'ₜ', u:'ᵤ', v:'ᵥ', x:'ₓ',
+        '+':'₊', '-':'₋', '=':'₌', '(':'₍', ')':'₎'
+      };
+      return [...t].map(ch => {
+        if (ch >= '0' && ch <= '9') return subDigits[ch.charCodeAt(0) - 48];
+        return subLetters[ch.toLowerCase()] || ch;
+      }).join('');
+    }
+  },
+  {
+    key:'superscript', label:'Superscript', compat:{d:2,t:2,n:2,s:0},
+    tip:'Superscript Unicode (x², 1ˢᵗ, footnote¹). Letter coverage is partial because Unicode does not define a full superscript alphabet. Unsupported letters pass through unchanged.',
+    fn: t => {
+      const supDigits = '⁰¹²³⁴⁵⁶⁷⁸⁹';
+      const supLetters = {
+        a:'ᵃ', b:'ᵇ', c:'ᶜ', d:'ᵈ', e:'ᵉ', f:'ᶠ', g:'ᵍ', h:'ʰ', i:'ⁱ',
+        j:'ʲ', k:'ᵏ', l:'ˡ', m:'ᵐ', n:'ⁿ', o:'ᵒ', p:'ᵖ', r:'ʳ', s:'ˢ',
+        t:'ᵗ', u:'ᵘ', v:'ᵛ', w:'ʷ', x:'ˣ', y:'ʸ', z:'ᶻ',
+        A:'ᴬ', B:'ᴮ', D:'ᴰ', E:'ᴱ', G:'ᴳ', H:'ᴴ', I:'ᴵ', J:'ᴶ', K:'ᴷ',
+        L:'ᴸ', M:'ᴹ', N:'ᴺ', O:'ᴼ', P:'ᴾ', R:'ᴿ', T:'ᵀ', U:'ᵁ', V:'ⱽ',
+        W:'ᵂ',
+        '+':'⁺', '-':'⁻', '=':'⁼', '(':'⁽', ')':'⁾'
+      };
+      return [...t].map(ch => {
+        if (ch >= '0' && ch <= '9') return supDigits[ch.charCodeAt(0) - 48];
+        return supLetters[ch] || ch;
+      }).join('');
+    }
+  },
+  {
+    key:'flags', label:'Regional Indicator', compat:{d:2,t:2,n:2,s:1},
+    tip:'Type 2-letter ISO country codes to render flags. US becomes 🇺🇸, FR becomes 🇫🇷, JP becomes 🇯🇵. Single letters render as regional indicator letters without a flag.',
+    fn: t => [...t].map(ch => {
+      const c = ch.toUpperCase().charCodeAt(0);
+      if (c >= 65 && c <= 90) return String.fromCodePoint(0x1F1E6 + c - 65);
+      return ch;
+    }).join('')
   }
 ];
 
