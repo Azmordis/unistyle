@@ -283,9 +283,9 @@
 
     #inputText {
       flex: 0 1 auto;
-      height: 180px;
-      min-height: 140px;
-      max-height: 50vh;
+      height: 360px;
+      min-height: 280px;
+      max-height: 60vh;
       margin: 0 14px 0;
       border: 1.5px solid var(--border);
       border-radius: 8px;
@@ -641,9 +641,10 @@
       /* Hide the per-marker text labels on the limit bar - they overlap at narrow widths.
          The .limit-status row below shows the same platform-limits info readably. */
       .limit-marker span { display: none; }
-      /* Restore flex-fill textarea on mobile so it adapts to the 50vh left-panel cell.
-         Desktop sizing (compact 180px default + auto-grow) doesn't fit mobile's smaller cell. */
-      #inputText { flex: 1 1 auto; height: auto; min-height: 0; max-height: none; }
+      /* Restore flex-fill textarea on mobile - matches pre-2026-05-20 behavior.
+         !important on height beats the JS auto-grow's inline style so the textarea
+         flex-fills the 50vh left-panel cell rather than locking to a content-driven height. */
+      #inputText { flex: 1; height: auto !important; min-height: 0 !important; max-height: none !important; }
       /* Tighten limit-status so the platform list wraps cleanly if needed */
       .limit-status { font-size: 10px; line-height: 1.4; word-spacing: 0.05em; }
     }
@@ -1345,12 +1346,14 @@
   inputEl.addEventListener('input', () => { cancelAnimationFrame(rafId); rafId = requestAnimationFrame(updateOutputs); });
 
   /* ── Textarea auto-grow ──────────────────────────────── */
-  /* Compact default (180px), expands with content up to max-height (50vh).
-     CSS max-height caps the growth; overflow-y:auto scrolls beyond that. */
+  /* Default 360px (about half the desktop left-panel card). Grows with content
+     up to CSS max-height (60vh). Floor matches the CSS default so short input
+     never shrinks the textarea below the user-friendly resting size. */
+  const INPUT_DEFAULT_HEIGHT = 360;
   function autoGrowInput() {
     // Reset to baseline so scrollHeight reflects content, not previous expansion
     inputEl.style.height = 'auto';
-    const next = Math.max(140, inputEl.scrollHeight);
+    const next = Math.max(INPUT_DEFAULT_HEIGHT, inputEl.scrollHeight);
     inputEl.style.height = next + 'px';
   }
   inputEl.addEventListener('input', autoGrowInput);
