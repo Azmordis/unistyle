@@ -50,8 +50,11 @@
   }
   </script>
 
-  <!-- Google AdSense — replace ca-pub-XXXXXXXXXX with your publisher ID -->
+  <!-- Google AdSense - DISABLED awaiting AdSense approval. To re-enable, uncomment
+       the script tag below AND the ad unit block lower in this file, then replace
+       ca-pub-XXXXXXXXXX with the real publisher ID in both places.
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX" crossorigin="anonymous"></script>
+  -->
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -790,7 +793,9 @@
 
   </div>
 
-  <!-- AdSense ad unit (responsive horizontal banner) — remove this block to disable -->
+  <!-- AdSense ad unit - DISABLED awaiting AdSense approval. To re-enable, uncomment
+       this block AND the script tag in <head>, then replace ca-pub-XXXXXXXXXX in
+       data-ad-client and data-ad-slot with real publisher and slot IDs.
   <div class="adsense-banner" style="background:var(--primary-dark);padding:4px 16px 0;">
     <ins class="adsbygoogle"
          style="display:block"
@@ -800,6 +805,7 @@
          data-full-width-responsive="true"></ins>
     <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
   </div>
+  -->
 
   <!-- Footer -->
   <footer class="app-footer">
@@ -966,7 +972,7 @@
   function histOutside(e) { if (!histDropdown.contains(e.target) && e.target !== histBtn) closeHistory(); }
 
   /* ── Build rows ──────────────────────────────────────── */
-  const PLAT = [{k:'d',l:'Discord'},{k:'t',l:'X/Twitter'},{k:'n',l:'Notion'},{k:'s',l:'SMS'}];
+  const PLAT = [{k:'d',l:'Discord',b:'D'},{k:'t',l:'X/Twitter',b:'X'},{k:'n',l:'Notion',b:'N'},{k:'s',l:'SMS',b:'S'}];
   const COMPAT_LABEL = ['Limited','Partial','Full'];
 
   function buildRows() {
@@ -984,7 +990,7 @@
         PLAT.forEach(p => {
           const dot = document.createElement('span');
           const lv = style.compat[p.k];
-          dot.className = 'cd cd-'+lv; dot.textContent = p.k.toUpperCase();
+          dot.className = 'cd cd-'+lv; dot.textContent = p.b;
           dot.setAttribute('data-tip', p.l+': '+COMPAT_LABEL[lv]);
           cr.appendChild(dot);
         });
@@ -1070,6 +1076,18 @@
       limitStatus.classList.add('limit-exceeded');
     }
   }
+
+  /* ── Combo modifier transforms ───────────────────────── */
+  /* Maps comboMod <select> values to transform functions. The "none" key returns
+     null so updateCombo skips the apply step. Strikethrough and underline use the
+     same combining marks as the standalone styles in engine.js. */
+  const COMBO_MODS = {
+    none:   null,
+    strike: t => [...t].map(c => c + '̶').join(''), // U+0336 combining long stroke overlay
+    under:  t => [...t].map(c => c + '̲').join(''), // U+0332 combining low line
+    over:   t => [...t].map(c => c + '̅').join(''), // U+0305 combining overline
+    rev:    t => [...t].reverse().join('')
+  };
 
   /* ── Combo ───────────────────────────────────────────── */
   function updateCombo() {
