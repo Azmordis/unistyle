@@ -635,21 +635,64 @@
       .panels { grid-template-columns: 1fr; grid-template-rows: 50vh 1fr; }
       .left-panel { border-right: none; border-bottom: 2px solid var(--primary-dark); }
     }
+
+    /* Tier 2 Group B - 2026-05-20 - FAQ + a11y primitives */
+
+    /* Allow body scroll so FAQ becomes reachable below the .app's 100vh */
+    html, body { height: auto; min-height: 100%; }
+    body { overflow-y: auto; }
+
+    /* H1 reset - keep visual parity with the original div */
+    h1.header-title {
+      font-size: inherit;
+      font-weight: inherit;
+      line-height: inherit;
+    }
+
+    /* Skip-link */
+    .skip-link {
+      position: absolute; left: -9999px; top: 0; z-index: 9999;
+      background: var(--primary); color: #fff;
+      padding: 8px 14px; border-radius: 6px;
+      text-decoration: none; font-weight: 600;
+    }
+    .skip-link:focus { left: 8px; top: 8px; }
+
+    /* FAQ section */
+    .faq-section { background: var(--bg); padding: 48px 20px 64px; color: var(--text-dark); }
+    .faq-container { max-width: 720px; margin: 0 auto; }
+    .faq-section-heading { font-size: 22px; font-weight: 700; color: var(--primary); margin-bottom: 24px; text-align: center; }
+    .faq-item { background: var(--white, #fff); border: 1px solid var(--border, #d0dcea); border-radius: 10px; padding: 14px 22px; margin-bottom: 14px; box-shadow: 0 1px 2px rgba(28, 53, 96, 0.04); }
+    .faq-item summary.faq-q { font-size: 16px; font-weight: 700; color: var(--primary); line-height: 1.35; cursor: pointer; padding: 4px 0; list-style: none; }
+    .faq-item summary.faq-q::-webkit-details-marker { display: none; }
+    .faq-item summary.faq-q::before { content: '+'; display: inline-block; width: 18px; font-weight: 700; color: var(--primary); }
+    .faq-item[open] summary.faq-q::before { content: '\2212'; }
+    .faq-item .faq-a { font-size: 15px; line-height: 1.65; color: var(--text-dark); margin-top: 10px; }
+    .faq-item .faq-a a { color: var(--primary); text-decoration: underline; }
+    .faq-item .faq-a a:hover { color: var(--primary-dark); }
+    .faq-item .faq-a code { background: rgba(46, 80, 130, 0.08); padding: 1px 5px; border-radius: 3px; font-family: ui-monospace, 'SF Mono', Monaco, 'Cascadia Code', Menlo, monospace; font-size: 0.95em; }
+    @media (max-width: 700px) {
+      .faq-section { padding: 32px 14px 48px; }
+      .faq-item { padding: 12px 16px; }
+      .faq-item summary.faq-q { font-size: 15px; }
+      .faq-item .faq-a { font-size: 14px; }
+    }
   </style>
 </head>
 <body>
+<a href="#main" class="skip-link">Skip to text input</a>
 
 <div class="app">
 
   <!-- Header -->
   <header class="app-header">
-    <div class="header-title">
-      <div class="t-badge">U</div>
+    <h1 class="header-title">
+      <div class="t-badge" aria-hidden="true">U</div>
       <div class="title-text">
-        <span>UniStyle</span>
-        <span class="title-tagline">a universal text editor<span class="info-bubble" tabindex="0" title="Unicode styles copy-paste into Discord, Notion, X/Twitter, Slack, and more. The formatting travels with the text." aria-label="Unicode styles copy-paste into Discord, Notion, X/Twitter, Slack, and more. The formatting travels with the text.">i</span></span>
+        <span class="brand-name">UniStyle</span>
+        <span class="title-tagline">Unicode Text Formatter<span class="info-bubble" tabindex="0" title="Unicode styles copy-paste into Discord, Notion, X/Twitter, Slack, and more. The formatting travels with the text." aria-label="Unicode styles copy-paste into Discord, Notion, X/Twitter, Slack, and more. The formatting travels with the text.">i</span></span>
       </div>
-    </div>
+    </h1>
     <div class="header-actions">
       <button id="installBtn" class="btn-header"
         data-tip="Install as an app on your device for offline use">
@@ -659,6 +702,7 @@
   </header>
 
   <!-- Panels -->
+  <main id="main">
   <div class="panels">
 
     <!-- LEFT: Input -->
@@ -698,34 +742,35 @@
         </div>
         <div class="special-chars-row" id="specialCharsRow">
           <span class="chars-label">Insert:</span>
-          <button class="btn-special" data-char="—" data-tip="Em dash — long dash, great for parenthetical asides or replacing comma/semicolon">—</button>
-          <button class="btn-special" data-char="–" data-tip="En dash – used for ranges (2020–2024) and compound adjectives">–</button>
-          <button class="btn-special" data-char="…" data-tip="Ellipsis … one character, not three periods — cleaner and more semantic">…</button>
-          <button class="btn-special" data-char="&ldquo;" data-tip='Left double quote " (opening smart quote)'>&ldquo;</button>
-          <button class="btn-special" data-char="&rdquo;" data-tip='Right double quote " (closing smart quote)'>&rdquo;</button>
-          <button class="btn-special" data-char="&lsquo;" data-tip="Left single quote ' (opening smart quote)">&lsquo;</button>
-          <button class="btn-special" data-char="&rsquo;" data-tip="Right single quote ' (closing smart quote / apostrophe)">&rsquo;</button>
-          <button class="btn-special" data-char="©" data-tip="Copyright ©">©</button>
-          <button class="btn-special" data-char="®" data-tip="Registered trademark ®">®</button>
-          <button class="btn-special" data-char="™" data-tip="Trademark ™">™</button>
-          <button class="btn-special" data-char="°" data-tip="Degree symbol ° — temperature, angles, coordinates">°</button>
-          <button class="btn-special" data-char="•" data-tip="Bullet point •">•</button>
-          <button class="btn-special" data-char="→" data-tip="Right arrow →">→</button>
-          <button class="btn-special" data-char="←" data-tip="Left arrow ←">←</button>
-          <button class="btn-special" data-char="↑" data-tip="Up arrow ↑">↑</button>
-          <button class="btn-special" data-char="↓" data-tip="Down arrow ↓">↓</button>
-          <button class="btn-special" data-char="★" data-tip="Filled star ★">★</button>
-          <button class="btn-special" data-char="♥" data-tip="Heart ♥">♥</button>
-          <button class="btn-special" data-char="≠" data-tip="Not equal to ≠">≠</button>
-          <button class="btn-special" data-char="≈" data-tip="Approximately equal to ≈">≈</button>
-          <button class="btn-special" data-char="±" data-tip="Plus or minus ±">±</button>
-          <button class="btn-special" data-char="×" data-tip="Multiplication sign × (not the letter x)">×</button>
-          <button class="btn-special" data-char="÷" data-tip="Division sign ÷">÷</button>
-          <button class="btn-special" data-char="∞" data-tip="Infinity ∞">∞</button>
-          <button class="btn-special" data-char="π" data-tip="Pi π">π</button>
+          <button class="btn-special" data-char="—" aria-label="Insert em dash" data-tip="Em dash — long dash, great for parenthetical asides or replacing comma/semicolon">—</button>
+          <button class="btn-special" data-char="–" aria-label="Insert en dash" data-tip="En dash – used for ranges (2020–2024) and compound adjectives">–</button>
+          <button class="btn-special" data-char="…" aria-label="Insert ellipsis" data-tip="Ellipsis … one character, not three periods — cleaner and more semantic">…</button>
+          <button class="btn-special" data-char="&ldquo;" aria-label="Insert left double quote" data-tip='Left double quote " (opening smart quote)'>&ldquo;</button>
+          <button class="btn-special" data-char="&rdquo;" aria-label="Insert right double quote" data-tip='Right double quote " (closing smart quote)'>&rdquo;</button>
+          <button class="btn-special" data-char="&lsquo;" aria-label="Insert left single quote" data-tip="Left single quote ' (opening smart quote)">&lsquo;</button>
+          <button class="btn-special" data-char="&rsquo;" aria-label="Insert right single quote" data-tip="Right single quote ' (closing smart quote / apostrophe)">&rsquo;</button>
+          <button class="btn-special" data-char="©" aria-label="Insert copyright symbol" data-tip="Copyright ©">©</button>
+          <button class="btn-special" data-char="®" aria-label="Insert registered trademark symbol" data-tip="Registered trademark ®">®</button>
+          <button class="btn-special" data-char="™" aria-label="Insert trademark symbol" data-tip="Trademark ™">™</button>
+          <button class="btn-special" data-char="°" aria-label="Insert degree symbol" data-tip="Degree symbol ° — temperature, angles, coordinates">°</button>
+          <button class="btn-special" data-char="•" aria-label="Insert bullet point" data-tip="Bullet point •">•</button>
+          <button class="btn-special" data-char="→" aria-label="Insert right arrow" data-tip="Right arrow →">→</button>
+          <button class="btn-special" data-char="←" aria-label="Insert left arrow" data-tip="Left arrow ←">←</button>
+          <button class="btn-special" data-char="↑" aria-label="Insert up arrow" data-tip="Up arrow ↑">↑</button>
+          <button class="btn-special" data-char="↓" aria-label="Insert down arrow" data-tip="Down arrow ↓">↓</button>
+          <button class="btn-special" data-char="★" aria-label="Insert filled star" data-tip="Filled star ★">★</button>
+          <button class="btn-special" data-char="♥" aria-label="Insert heart" data-tip="Heart ♥">♥</button>
+          <button class="btn-special" data-char="≠" aria-label="Insert not equal sign" data-tip="Not equal to ≠">≠</button>
+          <button class="btn-special" data-char="≈" aria-label="Insert approximately equal sign" data-tip="Approximately equal to ≈">≈</button>
+          <button class="btn-special" data-char="±" aria-label="Insert plus minus sign" data-tip="Plus or minus ±">±</button>
+          <button class="btn-special" data-char="×" aria-label="Insert multiplication sign" data-tip="Multiplication sign × (not the letter x)">×</button>
+          <button class="btn-special" data-char="÷" aria-label="Insert division sign" data-tip="Division sign ÷">÷</button>
+          <button class="btn-special" data-char="∞" aria-label="Insert infinity symbol" data-tip="Infinity ∞">∞</button>
+          <button class="btn-special" data-char="π" aria-label="Insert pi symbol" data-tip="Pi π">π</button>
         </div>
       </div>
       <textarea id="inputText"
+        aria-label="Text to format"
         placeholder="Type or paste your text here…&#10;&#10;Formatted versions appear on the right. Click Copy next to any style to grab it."
         spellcheck="true"
         autocorrect="on"
@@ -770,9 +815,9 @@
           <span class="combo-subtitle">Stack a modifier on any base style</span>
         </div>
         <div class="combo-controls">
-          <select id="comboBase" class="combo-select"></select>
+          <select id="comboBase" class="combo-select" aria-label="Base style for combo"></select>
           <span class="combo-plus">+</span>
-          <select id="comboMod" class="combo-select">
+          <select id="comboMod" class="combo-select" aria-label="Combo modifier">
             <option value="none">No modifier</option>
             <option value="strike">Strikethrough</option>
             <option value="under">Underline</option>
@@ -792,6 +837,7 @@
     </div>
 
   </div>
+  </main>
 
   <!-- AdSense ad unit - DISABLED awaiting AdSense approval. To re-enable, uncomment
        this block AND the script tag in <head>, then replace ca-pub-XXXXXXXXXX in
@@ -812,6 +858,7 @@
     <a href="privacy.html">Privacy Policy</a>
     <!-- Ko-fi tip link -->
     <a href="https://ko-fi.com/abaker421" target="_blank" rel="noopener noreferrer">☕ Support UniStyle</a>
+    <a href="https://github.com/Azmordis/unistyle" target="_blank" rel="noopener" aria-label="UniStyle source code on GitHub">GitHub</a>
   </footer>
 
   <!-- History dropdown -->
@@ -825,6 +872,43 @@
   <div id="tt-portal"></div>
 
 </div>
+
+<!-- Tier 2 Group B FAQ section - 2026-05-20 - mirrors JSON-LD FAQPage -->
+<section class="faq-section" id="faq" aria-labelledby="faq-heading">
+  <div class="faq-container">
+    <h2 id="faq-heading" class="faq-section-heading">Frequently Asked Questions</h2>
+
+    <details class="faq-item">
+      <summary class="faq-q">How do I make bold text in Discord?</summary>
+      <p class="faq-a">Discord's Markdown formatting (using asterisks like <code>**bold**</code>) works in chat messages but does not work in usernames, bios, status messages, server descriptions, or most third-party Discord tools. UniStyle solves this by generating bold text as actual Unicode characters - the same letters in a different Unicode range that displays as bold style everywhere. Type your text into UniStyle at unistyle.io, copy the bold version, and paste it into any Discord field. Because the output is real Unicode (not Markdown), it survives copy-paste anywhere Discord accepts text.</p>
+    </details>
+
+    <details class="faq-item">
+      <summary class="faq-q">Does UniStyle work in Notion, Twitter, Slack, and LinkedIn?</summary>
+      <p class="faq-a">Yes. UniStyle output works in any text field that renders Unicode characters. Confirmed working in: Discord (bios, usernames, channels, status), Notion (pages, headings, inline text), X / Twitter (posts, replies, display names, bios), Slack (messages, channel descriptions), LinkedIn (headlines, about section, posts), Instagram (captions, bios), YouTube (comments, descriptions), Reddit, GitHub READMEs, and browser bookmarks. Because the output is plain Unicode rather than HTML or Markdown formatting, the formatting travels with the text wherever you paste it.</p>
+    </details>
+
+    <details class="faq-item">
+      <summary class="faq-q">Is UniStyle free? Does it have ads or require an account?</summary>
+      <p class="faq-a">UniStyle is free to use with no signup, no account, no email collection, and no tracking. The web app at unistyle.io has no ads. The tool runs entirely in the browser - text is converted on your device and nothing is sent to a server. The source code is open at <a href="https://github.com/Azmordis/unistyle" rel="noopener" target="_blank">github.com/Azmordis/unistyle</a>. Donations are optional via Ko-fi at <a href="https://ko-fi.com/abaker421" rel="noopener" target="_blank">ko-fi.com/abaker421</a>; the tool stays free regardless.</p>
+    </details>
+
+    <details class="faq-item">
+      <summary class="faq-q">What is the difference between UniStyle and Discord's built-in Markdown bold?</summary>
+      <p class="faq-a">Markdown formatting (like <code>**bold**</code> or <code>*italic*</code>) is interpreted by the platform showing the text - it works only where the platform supports it. Discord supports Markdown in chat messages but not in usernames, status, bios, or external integrations. Notion supports its own Markdown variant but strips it in some fields. Twitter does not support Markdown at all. UniStyle generates Unicode Mathematical Alphanumeric Symbols and related blocks - real characters like 𝐛𝐨𝐥𝐝, 𝑖𝑡𝑎𝑙𝑖𝑐, 𝐬𝐜𝐫𝐢𝐩𝐭 - that display the same style on any platform that renders Unicode (which is essentially every modern text field).</p>
+    </details>
+
+    <details class="faq-item">
+      <summary class="faq-q">How many styles does UniStyle support?</summary>
+      <p class="faq-a">UniStyle supports 22 Unicode styles: bold, italic, bold italic, bold sans-serif, italic sans-serif, bold italic sans-serif, underline, strikethrough, monospace, script (cursive), fraktur (gothic), double-struck (blackboard), fullwidth (vaporwave), small caps, bubble (circled letters), upside down, reverse, alternating case, zalgo (combining marks), subscript, superscript, and regional indicator (country flag codes). Plus a style combiner that stacks modifiers (strikethrough, underline, overline, reverse) on any base style. Most styles work for the basic A-Z range; some Unicode blocks have gaps. Numbers and punctuation render where the relevant Unicode range includes them.</p>
+    </details>
+
+    <details class="faq-item">
+      <summary class="faq-q">Is my text saved or sent anywhere?</summary>
+      <p class="faq-a">No. UniStyle runs entirely client-side in your browser. Text typed into the tool is converted locally on your device using JavaScript. Nothing is sent to a server, saved to a database, or logged. The page does not have any analytics that capture your text input. The optional Progressive Web App version stores recent inputs in local browser storage (on your device only) so the History button can let you revisit recent text - clear at any time via the Clear button. See the <a href="privacy.html">privacy policy</a> for full details.</p>
+    </details>
+  </div>
+</section>
 
 <script src="engine.js"></script>
 <script>
