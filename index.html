@@ -1026,6 +1026,14 @@
     applyVisibility();
   }
 
+  /* ── Limit bar config ─────────────────────────────────── */
+  const LIMITS = [
+    { name: 'X/Twitter', n:  280 },
+    { name: 'Discord',   n: 2000 },
+    { name: 'Instagram', n: 2200 },
+  ];
+  const BAR_MAX = 3000;
+
   /* ── Char counter + limit bar ────────────────────────── */
   function updateCounter() {
     const raw = inputEl.value;
