@@ -676,6 +676,13 @@
       #inputText { flex: 1; height: auto !important; min-height: 0 !important; max-height: none !important; }
       /* Tighten limit-status so the platform list wraps cleanly if needed */
       .limit-status { font-size: 10px; line-height: 1.4; word-spacing: 0.05em; }
+      /* iOS Safari: override 'auto' with 'scroll' to guarantee touch momentum scrolling */
+      #outputList { -webkit-overflow-scrolling: touch; overflow-y: scroll; }
+      /* iOS Safari viewport fix: 100vh includes the URL bar overlay, which pushes
+         the footer (and the Ko-fi button) below the visible area. 100dvh tracks
+         the visible viewport so the footer stays on screen regardless of filter
+         state or scroll position inside #outputList. */
+      .app { height: 100dvh; }
     }
 
     /* Tier 2 Group B - 2026-05-20 - FAQ + a11y primitives */
@@ -720,6 +727,30 @@
       .faq-item .faq-a { font-size: 14px; }
     }
 
+    /* Style pagination nav - hidden by default, shown by JS on mobile */
+    .style-nav {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 14px 6px;
+      flex-shrink: 0;
+      gap: 8px;
+    }
+    .btn-style-nav {
+      min-height: 36px;
+      min-width: 48px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px 14px;
+      transition: background 0.12s;
+    }
+    .btn-style-nav:disabled { background: var(--border); color: var(--neutral); cursor: default; }
+    .style-page-ind { font-size: 12px; color: var(--neutral); }
     /* Narrow mobile (380-480px) - touch targets and layout tightening */
     @media (max-width: 480px) {
       /* Recover vertical space in the header */
@@ -766,7 +797,7 @@
       <div class="t-badge" aria-hidden="true">U</div>
       <div class="title-text">
         <span class="brand-name">UniStyle</span>
-        <span class="title-tagline">Unicode Text Formatter<span class="info-bubble" tabindex="0" title="Unicode styles copy-paste into Discord, Notion, X/Twitter, Slack, and more. The formatting travels with the text." aria-label="Unicode styles copy-paste into Discord, Notion, X/Twitter, Slack, and more. The formatting travels with the text.">i</span></span>
+        <span class="title-tagline">Unicode Text Formatter<span class="info-bubble" tabindex="0" data-tip="Unicode styles copy-paste into Discord, Notion, X/Twitter, Slack, and more. The formatting travels with the text." aria-label="Unicode styles copy-paste into Discord, Notion, X/Twitter, Slack, and more. The formatting travels with the text.">i</span></span>
       </div>
     </h1>
     <div class="header-actions">
@@ -881,6 +912,11 @@
       <div class="filter-chips">
         <button class="chip active" data-filter="all" aria-pressed="true">All</button>
         <button class="chip" data-filter="favs" aria-pressed="false">★ Favorites</button>
+      </div>
+      <div class="style-nav" id="styleNav">
+        <button id="stylePrevBtn" class="btn-style-nav" aria-label="Previous styles">&#8592; Prev</button>
+        <span id="stylePageInd" class="style-page-ind">1 / 6</span>
+        <button id="styleNextBtn" class="btn-style-nav" aria-label="Next styles">Next &#8594;</button>
       </div>
       <div id="outputList"></div>
 
@@ -1023,6 +1059,9 @@
   /* ── Favorites ───────────────────────────────────────── */
   let favorites = new Set(JSON.parse(localStorage.getItem('tf-favs') || '[]'));
   let activeFilter = 'all';
+  /* ── Mobile pagination state ─────────────────────────── */
+  let mobilePage = 0;
+  let mobilePool = []; // filter-visible rows, updated by applyVisibility
 
   function saveFavorites() { localStorage.setItem('tf-favs',JSON.stringify([...favorites])); }
 
@@ -1076,8 +1115,58 @@
       }
       noSearchMsg.style.display = '';
     } else if (noSearchMsg) { noSearchMsg.style.display = 'none'; }
+    // Mobile pagination - capture visible pool and re-paginate from page 0
+    mobilePool = [...rows].filter(r => r.style.display !== 'none');
+    mobilePage = 0;
+    applyMobilePagination();
   }
 
+  /* ── Mobile style pagination ─────────────────────────── */
+  const styleNav     = document.getElementById('styleNav');
+  const stylePrevBtn = document.getElementById('stylePrevBtn');
+  const styleNextBtn = document.getElementById('styleNextBtn');
+  const stylePageInd = document.getElementById('stylePageInd');
+  const MOBILE_BREAK = 680;
+  const PAGE_SIZE    = 5;
+  function applyMobilePagination() {
+    const isMobile = window.innerWidth <= MOBILE_BREAK;
+    if (!isMobile) {
+      styleNav.style.display = 'none';
+      mobilePool.forEach(r => { r.style.display = ''; });
+      return;
+    }
+    const total = Math.ceil(mobilePool.length / PAGE_SIZE);
+    if (total <= 1) {
+      styleNav.style.display = 'none';
+      mobilePool.forEach(r => { r.style.display = ''; });
+      return;
+    }
+    if (mobilePage >= total) mobilePage = total - 1;
+    if (mobilePage < 0)     mobilePage = 0;
+    // Hide all rows, then show only the current page's slice
+    document.querySelectorAll('#outputList .style-row[data-key]')
+      .forEach(r => { r.style.display = 'none'; });
+    mobilePool
+      .slice(mobilePage * PAGE_SIZE, (mobilePage + 1) * PAGE_SIZE)
+      .forEach(r => { r.style.display = ''; });
+    // Update nav controls
+    styleNav.style.display    = 'flex';
+    stylePrevBtn.disabled     = mobilePage === 0;
+    styleNextBtn.disabled     = mobilePage >= total - 1;
+    stylePageInd.textContent  = (mobilePage + 1) + ' / ' + total;
+  }
+  stylePrevBtn.addEventListener('click', () => {
+    if (mobilePage > 0) { mobilePage--; applyMobilePagination(); }
+  });
+  styleNextBtn.addEventListener('click', () => {
+    const total = Math.ceil(mobilePool.length / PAGE_SIZE);
+    if (mobilePage < total - 1) { mobilePage++; applyMobilePagination(); }
+  });
+  // Re-run on resize so rotating from portrait to landscape resets correctly
+  window.addEventListener('resize', () => {
+    mobilePage = 0;
+    applyMobilePagination();
+  }, { passive: true });
   /* ── History ─────────────────────────────────────────── */
   let histIsOpen = false;
 
@@ -1355,6 +1444,44 @@
     ttPortal.style.opacity = '0';
     setTimeout(() => { if (ttPortal.style.opacity === '0') ttPortal.style.display = 'none'; }, 160);
   });
+  /* ── Info bubble: tap-to-show on touch + click ────────── */
+  const infoBubble = document.querySelector('.info-bubble[data-tip]');
+  if (infoBubble) {
+    infoBubble.addEventListener('click', e => {
+      e.stopPropagation();
+      if (ttActive === infoBubble) {
+        // Already open - close it
+        ttActive = null;
+        ttPortal.style.opacity = '0';
+        setTimeout(() => { if (ttPortal.style.opacity === '0') ttPortal.style.display = 'none'; }, 160);
+        return;
+      }
+      // Open via portal (same logic as the mouseover handler)
+      ttActive = infoBubble;
+      ttPortal.textContent = infoBubble.dataset.tip;
+      ttPortal.style.display = 'block';
+      ttPortal.style.opacity = '0';
+      requestAnimationFrame(() => {
+        const r  = infoBubble.getBoundingClientRect();
+        const tw = ttPortal.offsetWidth;
+        const th = ttPortal.offsetHeight;
+        const top = (window.innerHeight - r.bottom > th + 12) ? r.bottom + 5 : r.top - th - 8;
+        let left = r.left + r.width / 2 - tw / 2;
+        left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));
+        ttPortal.style.top  = top  + 'px';
+        ttPortal.style.left = left + 'px';
+        ttPortal.style.opacity = '1';
+        // Auto-close when user taps/clicks elsewhere
+        const closeOnOutside = () => {
+          ttActive = null;
+          ttPortal.style.opacity = '0';
+          setTimeout(() => { if (ttPortal.style.opacity === '0') ttPortal.style.display = 'none'; }, 160);
+          document.removeEventListener('click', closeOnOutside, true);
+        };
+        setTimeout(() => document.addEventListener('click', closeOnOutside, true), 0);
+      });
+    });
+  }
 
   /* ── Special character insert ─────────────────────────── */
   function insertAtCursor(char) {
