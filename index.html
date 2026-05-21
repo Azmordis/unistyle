@@ -719,6 +719,40 @@
       .faq-item summary.faq-q { font-size: 15px; }
       .faq-item .faq-a { font-size: 14px; }
     }
+
+    /* Narrow mobile (380-480px) - touch targets and layout tightening */
+    @media (max-width: 480px) {
+      /* Recover vertical space in the header */
+      .app-header { padding: 8px 12px; }
+
+      /* Shift the stacked-panel split from 50vh/1fr to 45vh/1fr so the right
+         panel (output list) gets more visible height on small phones.
+         Combined with hiding the combo section, outputList gains ~66px on
+         an iPhone SE (667px tall). */
+      .panels { grid-template-rows: 45vh 1fr; }
+
+      /* Hide the combo builder on narrow mobile. Its 85px fixed height squeezes
+         the scrollable output list down to ~72px - unusable. Style list remains
+         fully accessible; combo can be revisited as a collapsible toggle later. */
+      .combo-section { display: none; }
+
+      /* Touch targets: Apple HIG recommends 44x44px minimum tap area.
+         Primary action gets 44px; secondary per-row buttons get 36px.
+         Using min-height + padding so the tap area grows without changing layout logic. */
+      .btn-format-primary { min-height: 44px; padding: 10px 14px; font-size: 13px; }
+      .copy-btn           { min-height: 36px; padding: 7px 12px;  font-size: 11px; }
+      .heart-btn          { min-height: 36px; min-width: 36px; padding: 4px 6px; font-size: 14px; }
+      .chip               { min-height: 36px; padding: 5px 12px; }
+      .btn-input          { min-height: 36px; padding: 7px 10px; }
+      .btn-transform      { min-height: 30px; padding: 5px 8px; }
+
+      /* Style rows - slightly more padding for comfortable touch interaction */
+      .style-row { padding: 7px 8px; }
+
+      /* Footer - allow links to wrap to a second line on very narrow viewports */
+      .app-footer { display: flex; flex-wrap: wrap; gap: 4px 0; align-items: center; padding: 6px 14px; }
+      .app-footer a { margin-left: 5px; }
+    }
   </style>
 </head>
 <body>
