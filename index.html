@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Security headers (meta-equivalent; GitHub Pages does not allow custom HTTP headers).
+       Note: frame-ancestors is intentionally omitted because browsers ignore it from <meta>. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none';">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>Unicode Text Formatter - UniStyle</title>
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#2E5082" />
@@ -1074,7 +1078,7 @@
 
   function buildRows() {
     outputList.innerHTML = '';
-    comboBase.innerHTML = STYLES.filter(s=>!s.hasSlider).map(s=>`<option value="${s.key}">${s.label}</option>`).join('');
+    comboBase.replaceChildren(...STYLES.filter(s=>!s.hasSlider).map(s => new Option(s.label, s.key)));
     STYLES.forEach(style => {
       const row = document.createElement('div');
       row.className = 'style-row'; row.dataset.key = style.key;
