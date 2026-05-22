@@ -800,6 +800,40 @@
       .app-footer { display: flex; flex-wrap: wrap; gap: 4px 0; align-items: center; padding: 6px 14px; }
       .app-footer a { margin-left: 5px; }
     }
+
+    /* Chrome Extension section - desktop only (hidden on mobile; extension is not available on mobile) */
+    .ext-section {
+      background: var(--white);
+      padding: 48px 20px 56px;
+      border-top: 3px solid var(--primary);
+      color: var(--text-dark);
+    }
+    .ext-container { max-width: 720px; margin: 0 auto; }
+    .ext-heading { font-size: 22px; font-weight: 700; color: var(--primary); margin-bottom: 10px; text-align: center; }
+    .ext-intro { font-size: 15px; line-height: 1.65; color: var(--neutral); text-align: center; margin-bottom: 32px; max-width: 540px; margin-left: auto; margin-right: auto; }
+    .ext-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .ext-card { background: var(--bg); border: 1px solid var(--border); border-top: 3px solid var(--primary); border-radius: 10px; padding: 20px 20px 22px; box-shadow: 0 1px 2px rgba(28,53,96,0.04); }
+    .ext-card-title { font-size: 15px; font-weight: 700; color: var(--primary); margin-bottom: 10px; }
+    .ext-card-body { font-size: 14px; line-height: 1.65; color: var(--text-dark); }
+    .ext-card-body a { color: var(--primary); text-decoration: underline; }
+    .ext-card-body a:hover { color: var(--primary-dark); }
+    .ext-shortcut-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .ext-shortcut-list li { font-size: 14px; line-height: 1.45; color: var(--text-dark); display: flex; flex-direction: column; gap: 3px; }
+    .ext-shortcut-list .shortcut-desc { color: var(--neutral); font-size: 13px; padding-left: 2px; }
+    kbd {
+      display: inline-block;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-family: ui-monospace, 'SF Mono', Monaco, 'Cascadia Code', Menlo, monospace;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-dark);
+      white-space: nowrap;
+    }
+    @media (max-width: 680px) { .ext-section { display: none; } }
   </style>
 </head>
 <body>
@@ -1000,6 +1034,45 @@
   <div id="tt-portal"></div>
 
 </div>
+
+<!-- Chrome Extension section - desktop only - 2026-05-22 -->
+<section class="ext-section" id="chrome-extension" aria-labelledby="ext-heading">
+  <div class="ext-container">
+    <h2 id="ext-heading" class="ext-heading">Use UniStyle Anywhere in Chrome</h2>
+    <p class="ext-intro">The Chrome extension brings UniStyle to every text field in your browser. No tab switching, no copy-pasting to the web app.</p>
+    <div class="ext-cards">
+
+      <div class="ext-card">
+        <h3 class="ext-card-title">Keyboard Shortcuts</h3>
+        <ul class="ext-shortcut-list">
+          <li>
+            <kbd>Ctrl+Shift+Y</kbd>
+            <span class="shortcut-desc">Open the UniStyle popup</span>
+          </li>
+          <li>
+            <kbd>Ctrl+Shift+U</kbd>
+            <span class="shortcut-desc">Transform selected text with your last-used style</span>
+          </li>
+          <li>
+            <kbd>Ctrl+Shift+F</kbd>
+            <span class="shortcut-desc">Open the inline formatting panel</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="ext-card">
+        <h3 class="ext-card-title">Right-Click Menu</h3>
+        <p class="ext-card-body">Select any text on any page, right-click, and choose <strong>Format with UniStyle</strong>. The formatted version replaces your selection in place. Works in Gmail, Notion, Slack, Discord, anywhere you type.</p>
+      </div>
+
+      <div class="ext-card">
+        <h3 class="ext-card-title">Install</h3>
+        <p class="ext-card-body">Coming soon to the Chrome Web Store. <a href="https://github.com/buildwithbaker/unistyle" rel="noopener" target="_blank">Star the repo on GitHub</a> to get notified when it drops.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
 
 <!-- Tier 2 Group B FAQ section - 2026-05-20 - mirrors JSON-LD FAQPage -->
 <section class="faq-section" id="faq" aria-labelledby="faq-heading">
