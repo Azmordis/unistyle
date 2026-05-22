@@ -2,7 +2,7 @@
 // Strategy: network-first for index.html (updates reach users immediately);
 //           cache-first for everything else (icons, manifest - rarely change).
 
-const CACHE_NAME = 'unistyle-v3';
+const CACHE_NAME = 'unistyle-v4';
 
 const ASSETS = [
   './',
@@ -12,6 +12,9 @@ const ASSETS = [
   './icon.svg',
   './privacy.html',
   './favicon.ico',
+  './favicon-16.png',
+  './favicon-32.png',
+  './favicon-48.png',
   './apple-touch-icon-180.png',
   './icon-pwa-192.png',
   './icon-pwa-512.png',

@@ -188,6 +188,19 @@
       min-height: 0;
     }
 
+    /* main#main wrapper was added during the Tier 2 Group B a11y pass as a
+       semantic landmark. It must mirror the flex sizing that .panels relied on
+       when it was a direct child of .app, otherwise content height pushes the
+       footer below .app's height-constrained box and overflow:hidden clips it
+       from view. This rule is the upstream half of the 100dvh footer fix. */
+    main#main {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
     /* ── Left panel ──────────────────────────────────────── */
     .left-panel {
       background: var(--primary);
