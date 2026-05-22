@@ -59,7 +59,7 @@ Full privacy policy: [unistyle.io/privacy](https://unistyle.io/privacy)
 ## Local development
 
 ```bash
-git clone https://github.com/Azmordis/unistyle.git
+git clone https://github.com/buildwithbaker/unistyle.git
 cd unistyle
 # Serve over HTTP for the service worker to register correctly:
 python3 -m http.server 8000
