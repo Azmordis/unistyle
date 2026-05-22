@@ -2,23 +2,23 @@
 // Strategy: network-first for index.html (updates reach users immediately);
 //           cache-first for everything else (icons, manifest - rarely change).
 
-const CACHE_NAME = 'unistyle-v5';
+const CACHE_NAME = 'unistyle-v6';
 
 const ASSETS = [
   './',
   './index.html',
-  './engine.js',
+  './assets/js/engine.js',
   './manifest.json',
-  './icon.svg',
+  './assets/icons/icon.svg',
   './privacy.html',
   './favicon.ico',
-  './favicon-16.png',
-  './favicon-32.png',
-  './favicon-48.png',
-  './apple-touch-icon-180.png',
-  './icon-pwa-192.png',
-  './icon-pwa-512.png',
-  './icon-pwa-maskable-512.png'
+  './assets/icons/favicon-16.png',
+  './assets/icons/favicon-32.png',
+  './assets/icons/favicon-48.png',
+  './assets/icons/apple-touch-icon-180.png',
+  './assets/icons/icon-pwa-192.png',
+  './assets/icons/icon-pwa-512.png',
+  './assets/icons/icon-pwa-maskable-512.png'
 ];
 
 // On install: cache all static assets
