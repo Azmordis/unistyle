@@ -662,6 +662,11 @@
     .footer-note { font-size: 10.5px; color: rgba(255,255,255,0.45); }
     .app-footer a { font-size: 10.5px; color: rgba(255,255,255,0.5); text-decoration: none; margin-left: 10px; }
     .app-footer a:hover { color: rgba(255,255,255,0.85); text-decoration: underline; }
+    /* Build with Baker umbrella attribution - small distinct text link.
+     * Upgrade to the KB-spec pill (#2B4A8B background) once BwB has a domain
+     * and bird-mark icon. */
+    .app-footer a.bwb-attrib { color: rgba(255,255,255,0.55); margin-left: auto; padding-left: 14px; border-left: 1px solid rgba(255,255,255,0.12); }
+    .app-footer a.bwb-attrib:hover { color: rgba(255,255,255,0.95); }
     /* Ko-fi support button - visually distinct from the text links, gold accent */
     .app-footer a.kofi-button {
       display: inline-block;
@@ -1056,6 +1061,7 @@
     <!-- Ko-fi tip button -->
     <a href="https://ko-fi.com/abaker421" class="kofi-button" target="_blank" rel="noopener noreferrer" aria-label="Support UniStyle on Ko-fi">☕ Support on Ko-fi</a>
     <a href="https://github.com/buildwithbaker/unistyle" target="_blank" rel="noopener" aria-label="UniStyle source code on GitHub">GitHub</a>
+    <a href="https://github.com/buildwithbaker" target="_blank" rel="noopener" aria-label="Build with Baker - the maker brand behind UniStyle" class="bwb-attrib">Made by Build with Baker</a>
   </footer>
 
   <!-- History dropdown -->
