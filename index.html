@@ -698,6 +698,11 @@
       /* Nav is always visible on mobile (JS enforces this too); declaring it here avoids
          the pre-JS hidden->visible flash and the resulting layout shift. */
       .style-nav { display: flex; }
+      /* Hide the combo builder on ALL mobile widths. Its ~109px fixed height leaves too
+         little room for the style list, which must show whole rows with NO internal scroll
+         (at 481-680px it collapsed the list to ~47px, clipping even a single row). Combo
+         stays available on desktop. */
+      .combo-section { display: none; }
       /* iOS Safari viewport fix: 100vh includes the URL bar overlay, which pushes
          the footer (and the Ko-fi button) below the visible area. 100dvh tracks
          the visible viewport so the footer stays on screen regardless of filter
@@ -777,15 +782,9 @@
       .app-header { padding: 8px 12px; }
 
       /* Shift the stacked-panel split from 50vh/1fr to 45vh/1fr so the right
-         panel (output list) gets more visible height on small phones.
-         Combined with hiding the combo section, outputList gains ~66px on
-         an iPhone SE (667px tall). */
+         panel (output list) gets more visible height on small phones. (Combo is
+         already hidden across mobile by the <=680px block above.) */
       .panels { grid-template-rows: 45vh 1fr; }
-
-      /* Hide the combo builder on narrow mobile. Its 85px fixed height squeezes
-         the scrollable output list down to ~72px - unusable. Style list remains
-         fully accessible; combo can be revisited as a collapsible toggle later. */
-      .combo-section { display: none; }
 
       /* Touch targets: Apple HIG recommends 44x44px minimum tap area.
          Primary action gets 44px; secondary per-row buttons get 36px.
