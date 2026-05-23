@@ -681,7 +681,7 @@
 
     /* ── Mobile ──────────────────────────────────────────── */
     @media (max-width: 680px) {
-      .panels { grid-template-columns: 1fr; grid-template-rows: 50vh 1fr; }
+      .panels { grid-template-columns: 1fr; grid-template-rows: 45vh 1fr; }
       .left-panel { border-right: none; border-bottom: 2px solid var(--primary-dark); }
       /* Hide the per-marker text labels on the limit bar - they overlap at narrow widths.
          The .limit-status row below shows the same platform-limits info readably. */
@@ -696,8 +696,11 @@
          internally on mobile - hide overflow to suppress any scrollbar / touch-scroll. */
       #outputList { overflow: hidden; }
       /* Nav is always visible on mobile (JS enforces this too); declaring it here avoids
-         the pre-JS hidden->visible flash and the resulting layout shift. */
-      .style-nav { display: flex; }
+         the pre-JS hidden->visible flash and the resulting layout shift. Tighter padding
+         than desktop so the style list below gets more whole rows. */
+      .style-nav { display: flex; padding: 3px 14px 4px; }
+      /* Trim the filter-chips row too, for the same row-budget reason. */
+      .filter-chips { padding: 3px 14px 3px; }
       /* Hide the combo builder on ALL mobile widths. Its ~109px fixed height leaves too
          little room for the style list, which must show whole rows with NO internal scroll
          (at 481-680px it collapsed the list to ~47px, clipping even a single row). Combo
@@ -708,6 +711,26 @@
          the visible viewport so the footer stays on screen regardless of filter
          state or scroll position inside #outputList. */
       .app { height: 100dvh; }
+      /* Special-char inserts on mobile: ONE horizontal scroll strip of finger-sized
+         buttons, instead of wrapping all ~25 onto stacked rows (tiny tap targets and a
+         tall footprint). Swipe the strip sideways to reach the rest. */
+      .special-chars-row.open {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        gap: 6px;
+        padding-bottom: 3px;
+        scrollbar-width: thin;
+      }
+      .special-chars-row.open .chars-label { flex-shrink: 0; }
+      .btn-special {
+        min-width: 38px;
+        min-height: 38px;
+        padding: 6px 10px;
+        font-size: 17px;
+        line-height: 1;
+        flex-shrink: 0;
+      }
     }
 
     /* Tier 2 Group B - 2026-05-20 - FAQ + a11y primitives */
@@ -781,10 +804,11 @@
       /* Recover vertical space in the header */
       .app-header { padding: 8px 12px; }
 
-      /* Shift the stacked-panel split from 50vh/1fr to 45vh/1fr so the right
-         panel (output list) gets more visible height on small phones. (Combo is
-         already hidden across mobile by the <=680px block above.) */
-      .panels { grid-template-rows: 45vh 1fr; }
+      /* Shift the stacked-panel split from 50vh/1fr to 42vh/1fr so the right panel
+         (output list) gets more visible height - enough for 4 whole style rows on a
+         Pixel-4XL-class phone (~412x869) while keeping the textarea usable (~130px).
+         (Combo is already hidden across mobile by the <=680px block above.) */
+      .panels { grid-template-rows: 42vh 1fr; }
 
       /* Touch targets: Apple HIG recommends 44x44px minimum tap area.
          Primary action gets 44px; secondary per-row buttons get 36px.
@@ -804,13 +828,12 @@
       .app-footer a { margin-left: 5px; }
     }
 
-    /* Short mobile viewports (e.g. iPhone SE-class, <= 720px tall): reclaim vertical space
-       so the style list shows 2-3 rows with no internal scroll. Slightly smaller input panel
-       plus tighter chip/nav chrome; 36px touch targets are preserved. */
+    /* Short mobile viewports (<= 720px tall) that are too WIDE for the <=480px block
+       (i.e. 481-680px wide, e.g. a small phone in landscape or a narrow tablet): pull the
+       input split down to 42vh so the style list still gets whole rows with no scroll.
+       (<=480px phones already get 42vh above; chip/nav chrome trims live in <=680px.) */
     @media (max-width: 680px) and (max-height: 720px) {
       .panels { grid-template-rows: 42vh 1fr; }
-      .filter-chips { padding: 3px 14px 3px; }
-      .style-nav { padding: 3px 14px 4px; }
     }
 
     /* Chrome Extension section - desktop only (hidden on mobile; extension is not available on mobile) */
