@@ -692,8 +692,12 @@
       #inputText { flex: 1; height: auto !important; min-height: 0 !important; max-height: none !important; }
       /* Tighten limit-status so the platform list wraps cleanly if needed */
       .limit-status { font-size: 10px; line-height: 1.4; word-spacing: 0.05em; }
-      /* iOS Safari: override 'auto' with 'scroll' to guarantee touch momentum scrolling */
-      #outputList { -webkit-overflow-scrolling: touch; overflow-y: scroll; }
+      /* Pagination shows exactly PAGE_SIZE rows per page, so the list must never scroll
+         internally on mobile - hide overflow to suppress any scrollbar / touch-scroll. */
+      #outputList { overflow: hidden; }
+      /* Nav is always visible on mobile (JS enforces this too); declaring it here avoids
+         the pre-JS hidden->visible flash and the resulting layout shift. */
+      .style-nav { display: flex; }
       /* iOS Safari viewport fix: 100vh includes the URL bar overlay, which pushes
          the footer (and the Ko-fi button) below the visible area. 100dvh tracks
          the visible viewport so the footer stays on screen regardless of filter
@@ -799,6 +803,15 @@
       /* Footer - allow links to wrap to a second line on very narrow viewports */
       .app-footer { display: flex; flex-wrap: wrap; gap: 4px 0; align-items: center; padding: 6px 14px; }
       .app-footer a { margin-left: 5px; }
+    }
+
+    /* Short mobile viewports (e.g. iPhone SE-class, <= 720px tall): reclaim vertical space
+       so the style list shows 2-3 rows with no internal scroll. Slightly smaller input panel
+       plus tighter chip/nav chrome; 36px touch targets are preserved. */
+    @media (max-width: 680px) and (max-height: 720px) {
+      .panels { grid-template-rows: 42vh 1fr; }
+      .filter-chips { padding: 3px 14px 3px; }
+      .style-nav { padding: 3px 14px 4px; }
     }
 
     /* Chrome Extension section - desktop only (hidden on mobile; extension is not available on mobile) */
@@ -1151,6 +1164,7 @@
   /* ── Mobile pagination state ─────────────────────────── */
   let mobilePage = 0;
   let mobilePool = []; // filter-visible rows, updated by applyVisibility
+  let perPage    = 5;  // dynamic: how many whole rows fit with NO internal scroll (recomputed on mobile)
 
   function saveFavorites() { localStorage.setItem('tf-favs',JSON.stringify([...favorites])); }
 
@@ -1217,38 +1231,56 @@
   const stylePageInd = document.getElementById('stylePageInd');
   const MOBILE_BREAK = 680;
   const PAGE_SIZE    = 5;
+  // How many whole style rows fit in the list box right now, with NO internal scroll.
+  // Returns at least 1 and at most PAGE_SIZE. The middle section must never scroll, so we
+  // paginate by however many actually fit rather than forcing a fixed count.
+  function computePerPage() {
+    const sample = mobilePool[0];
+    if (!sample) return PAGE_SIZE;
+    const prevDisplay = sample.style.display;
+    sample.style.display = '';                    // ensure the sample row is measurable
+    const cs = getComputedStyle(sample);
+    const margin = parseFloat(cs.marginBottom || '0');
+    const rowH = sample.getBoundingClientRect().height + margin;
+    sample.style.display = prevDisplay;
+    const olcs = getComputedStyle(outputList);
+    const padV = parseFloat(olcs.paddingTop || '0') + parseFloat(olcs.paddingBottom || '0');
+    const avail = outputList.clientHeight - padV;
+    if (rowH <= 0 || avail <= 0) return PAGE_SIZE;
+    // The last visible row needs no bottom margin, so credit one margin of slack.
+    const fit = Math.floor((avail + margin) / rowH);
+    return Math.max(1, Math.min(PAGE_SIZE, fit));
+  }
   function applyMobilePagination() {
     const isMobile = window.innerWidth <= MOBILE_BREAK;
     if (!isMobile) {
+      // Desktop: hide the nav and show the full list (no pagination).
       styleNav.style.display = 'none';
       mobilePool.forEach(r => { r.style.display = ''; });
       return;
     }
-    const total = Math.ceil(mobilePool.length / PAGE_SIZE);
-    if (total <= 1) {
-      styleNav.style.display = 'none';
-      mobilePool.forEach(r => { r.style.display = ''; });
-      return;
-    }
+    // Mobile: the nav is ALWAYS visible (even with one page) to avoid layout shift.
+    styleNav.style.display = 'flex';
+    perPage = computePerPage();
+    const total = Math.max(1, Math.ceil(mobilePool.length / perPage));
     if (mobilePage >= total) mobilePage = total - 1;
-    if (mobilePage < 0)     mobilePage = 0;
-    // Hide all rows, then show only the current page's slice
+    if (mobilePage < 0)      mobilePage = 0;
+    // Hide all rows, then show only the current page's slice (exactly what fits, no scroll).
     document.querySelectorAll('#outputList .style-row[data-key]')
       .forEach(r => { r.style.display = 'none'; });
     mobilePool
-      .slice(mobilePage * PAGE_SIZE, (mobilePage + 1) * PAGE_SIZE)
+      .slice(mobilePage * perPage, (mobilePage + 1) * perPage)
       .forEach(r => { r.style.display = ''; });
-    // Update nav controls
-    styleNav.style.display    = 'flex';
-    stylePrevBtn.disabled     = mobilePage === 0;
-    styleNextBtn.disabled     = mobilePage >= total - 1;
-    stylePageInd.textContent  = (mobilePage + 1) + ' / ' + total;
+    // Update nav controls. With one page, both buttons disable and the indicator reads "1 / 1".
+    stylePrevBtn.disabled    = mobilePage === 0;
+    styleNextBtn.disabled    = mobilePage >= total - 1;
+    stylePageInd.textContent = (mobilePage + 1) + ' / ' + total;
   }
   stylePrevBtn.addEventListener('click', () => {
     if (mobilePage > 0) { mobilePage--; applyMobilePagination(); }
   });
   styleNextBtn.addEventListener('click', () => {
-    const total = Math.ceil(mobilePool.length / PAGE_SIZE);
+    const total = Math.max(1, Math.ceil(mobilePool.length / perPage));
     if (mobilePage < total - 1) { mobilePage++; applyMobilePagination(); }
   });
   // Re-run on resize so rotating from portrait to landscape resets correctly
@@ -1593,6 +1625,7 @@
   sizeSlider.addEventListener('input', () => {
     outputList.style.setProperty('--output-size', sizeSlider.value+'px');
     document.querySelector('.combo-section').style.setProperty('--output-size', sizeSlider.value+'px');
+    applyMobilePagination(); // row height changed -> recompute how many fit without scrolling
   });
 
   comboBase.addEventListener('change', updateCombo);
