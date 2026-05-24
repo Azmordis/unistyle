@@ -4,8 +4,8 @@
   "description": "Convert text to Unicode styles that copy-paste anywhere — bold, italic, script, vaporwave, and 19 more. Works in Discord, Notion, X/Twitter, Slack, email, and anywhere Unicode renders.",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#1c3560",
-  "theme_color": "#2E5082",
+  "background_color": "#2B4A8B",
+  "theme_color": "#2B4A8B",
   "orientation": "any",
   "icons": [
     {

@@ -1,14 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
-  <!-- Background with rounded corners (gold/accent matching the in-app badge color) -->
-  <rect width="192" height="192" rx="36" fill="#A07020"/>
-  <!-- Decorative gradient overlay for depth -->
-  <rect width="192" height="192" rx="36" fill="url(#grad)" opacity="0.4"/>
-  <defs>
-    <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#d4a840"/>
-      <stop offset="100%" stop-color="#A07020" stop-opacity="0"/>
-    </linearGradient>
-  </defs>
-  <!-- Bold "U" letterform: two vertical strokes joined by a bottom bar -->
-  <path d="M 42 44 L 66 44 L 66 126 L 126 126 L 126 44 L 150 44 L 150 150 L 42 150 Z" fill="white" opacity="0.95"/>
+  <!-- UniStyle icon - indigo tile + white U letterform (refined A-curve geometry) -->
+  <!-- Color: #2B4A8B (Build with Baker brand-primary, locked 2026-05-23) -->
+  <!-- Letterform: A-curve circular arcs (inner radius 14, outer radius 36) -->
+  <rect width="192" height="192" rx="42" ry="42" fill="#2B4A8B"/>
+  <path fill-rule="evenodd" fill="#FFFFFF" d="M 38,38 L 64,38 L 64,114 A 14 14 0 0 0 78 128 L 114,128 A 14 14 0 0 0 128 114 L 128,38 L 154,38 L 154,118 A 36 36 0 0 1 118 154 L 74,154 A 36 36 0 0 1 38 118 Z"/>
 </svg>

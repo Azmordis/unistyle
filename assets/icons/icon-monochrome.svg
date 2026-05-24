@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <!-- UniStyle monochrome silhouette - white U on transparent -->
+  <!-- For Android notification icons, OS-themed tab icons, native-app wrapping -->
+  <!-- OS typically retints the alpha silhouette to match system theme color -->
+  <path fill-rule="evenodd" fill="#FFFFFF" d="M 38,38 L 64,38 L 64,114 A 14 14 0 0 0 78 128 L 114,128 A 14 14 0 0 0 128 114 L 128,38 L 154,38 L 154,118 A 36 36 0 0 1 118 154 L 74,154 A 36 36 0 0 1 38 118 Z"/>
+</svg>

@@ -18,7 +18,7 @@
   <link rel="icon" type="image/png" sizes="48x48" href="assets/icons/favicon-48.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon-180.png" />
 
-  <meta name="theme-color" content="#2E5082" />
+  <meta name="theme-color" content="#2B4A8B" />
   <meta name="description" content="Generate bold, italic, script, and monospace Unicode text for Discord, Notion, Twitter, Slack, and more. Free browser extension and web tool - no sign-up required.">
   <link rel="canonical" href="https://unistyle.io/">
 
@@ -75,13 +75,17 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --primary:        #2E5082;
-      --primary-dark:   #1c3560;
-      --primary-light:  #3d6399;
-      --accent:         #A07020;
-      --accent-bg:      #FFF8E8;
-      --accent-border:  #d4a840;
-      --accent-hover:   #8a5f18;
+      /* BwB indigo-only signature, locked 2026-05-23 v1.3.
+       * See project-blueprints/build-with-baker/shared/palette.css
+       * and project-blueprints/build-with-baker/future-enhancements/
+       * indigo-only-decision-2026-05-23.md */
+      --primary:        #2B4A8B;        /* indigo - only saturated brand color */
+      --primary-dark:   #243F76;        /* indigo hover */
+      --primary-light:  #4A6BB8;        /* lifted indigo for chip-bg etc */
+      --accent:         #2B4A8B;        /* ALIAS: legacy --accent -> primary */
+      --accent-bg:      #E8EDF7;        /* indigo-soft (was amber bg) */
+      --accent-border:  #2B4A8B;        /* indigo border (was gold) */
+      --accent-hover:   #243F76;        /* indigo hover (was gold hover) */
       --neutral:        #526070;
       --bg:             #EFF2F7;
       --white:          #FFFFFF;
@@ -672,7 +676,7 @@
     /* Ko-fi support button - visually distinct from the text links, gold accent */
     .app-footer a.kofi-button {
       display: inline-block;
-      background: var(--accent);
+      background: #FF5E5B;        /* Ko-fi vendor red (required) */
       color: #ffffff;
       padding: 3px 10px;
       border-radius: 12px;
@@ -681,7 +685,7 @@
       transition: background 0.15s ease;
     }
     .app-footer a.kofi-button:hover {
-      background: var(--accent-hover);
+      background: #E54845;        /* Ko-fi red, darker for hover */
       color: #ffffff;
       text-decoration: none;
     }
@@ -763,7 +767,7 @@
     .skip-link:focus { left: 8px; top: 8px; }
 
     /* FAQ section */
-    .faq-section { background: var(--bg); padding: 48px 20px 64px; color: var(--text-dark); border-top: 3px solid #A07020; }
+    .faq-section { background: var(--bg); padding: 48px 20px 64px; color: var(--text-dark); border-top: 3px solid var(--primary); }
     .faq-container { max-width: 720px; margin: 0 auto; }
     .faq-section-heading { font-size: 22px; font-weight: 700; color: var(--primary); margin-bottom: 24px; text-align: center; }
     .faq-item { background: var(--white, #fff); border: 1px solid var(--border, #d0dcea); border-radius: 10px; padding: 14px 22px; margin-bottom: 14px; box-shadow: 0 1px 2px rgba(28, 53, 96, 0.04); }
