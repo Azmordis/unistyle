@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>UniStyle</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="t-badge">U</div>
+      <h1>UniStyle</h1>
+      <a href="#" id="fullAppLink" class="full-app-link"
+        title="Open the full web app (combo builder, favorites, history, and more)">Open full app ↗</a>
+    </header>
+
+    <div class="input-block">
+      <div class="primary-action-row">
+        <button class="btn-format-primary" id="formatBtn"
+          title="Clean up spacing, capitalization, and punctuation">Format Sentences</button>
+        <button class="btn-clear" id="clearBtn" title="Clear the textarea">Clear</button>
+      </div>
+
+      <div class="transform-row">
+        <button class="btn-transform" id="capsBtn"   title="UPPERCASE">CAPS</button>
+        <button class="btn-transform" id="lowerBtn"  title="lowercase">lower</button>
+        <button class="btn-transform" id="titleBtn"  title="Title Case">Title</button>
+        <button class="btn-transform" id="stripBtn"  title="Remove Unicode formatting">Strip</button>
+        <button class="btn-transform btn-chars-toggle" id="charsToggle"
+          aria-expanded="false" aria-controls="specialCharsRow"
+          title="Insert special characters">Chars ▾</button>
+      </div>
+
+      <div class="special-chars-row" id="specialCharsRow"></div>
+
+      <textarea id="inputText" rows="4"
+        placeholder="Type or paste text…"
+        spellcheck="true"></textarea>
+
+      <div class="char-counter" id="charCounter">0 chars · 0 words</div>
+    </div>
+
+    <div class="output-block">
+      <div class="output-header">
+        <span class="panel-label">Styles</span>
+        <input type="search" id="styleSearch" placeholder="Search styles…" />
+      </div>
+      <div id="outputList" role="list"></div>
+    </div>
+
+    <footer class="app-footer">
+      <span id="versionLabel" class="version-label"></span>
+    </footer>
+
+    <div class="sr-only" id="sr-announce" aria-live="polite"></div>
+
+    <!-- Ko-fi tip link -->
+    <div class="kofi-tip">
+      <a href="https://ko-fi.com/abaker421" target="_blank" rel="noopener noreferrer" class="kofi-tip-link">☕ Support UniStyle</a>
+    </div>
+  </div>
+  <script src="engine.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

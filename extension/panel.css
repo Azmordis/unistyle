@@ -1,0 +1,249 @@
+/* UniStyle - Floating panel (right-click flow)
+ *
+ * This stylesheet is loaded into the panel's closed shadow root, so we
+ * don't have to namespace selectors against the host page - nothing
+ * outside the shadow can see these rules, and nothing inside can be
+ * styled by the host page.
+ */
+
+:host, * { box-sizing: border-box; }
+
+.tf-panel {
+  width: 360px;
+  max-height: 480px;
+  display: flex;
+  flex-direction: column;
+  background: #1c3560;
+  color: #f5f0e8;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 10px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.45), 0 2px 6px rgba(0,0,0,0.3);
+  font: 13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+  overflow: hidden;
+  /* Force LTR even if host page is RTL, since our copy text is LTR */
+  direction: ltr;
+}
+
+/* ── Header ─────────────────────────────────────── */
+.tf-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), transparent);
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+  flex-shrink: 0;
+}
+.tf-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.tf-badge {
+  width: 20px; height: 20px;
+  border-radius: 5px;
+  background: linear-gradient(135deg, #3a64a3, #2E5082);
+  color: #fff;
+  font-weight: 800;
+  font-size: 12px;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+.tf-title-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #f5f0e8;
+}
+.tf-mode {
+  margin-left: 4px;
+  padding: 2px 6px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.06);
+  color: rgba(245,240,232,0.55);
+  border: 1px solid rgba(255,255,255,0.10);
+  cursor: help;
+}
+.tf-mode.tf-mode-editable {
+  background: rgba(31, 111, 60, 0.25);
+  color: #8fdca5;
+  border-color: rgba(31, 111, 60, 0.45);
+}
+.tf-close {
+  width: 22px; height: 22px;
+  background: transparent;
+  color: rgba(245,240,232,0.66);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 4px;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+.tf-close:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.10);
+}
+
+/* ── Source preview ─────────────────────────────── */
+.tf-source {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 6px 10px;
+  background: rgba(0,0,0,0.18);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+  font-size: 11px;
+}
+.tf-source-label {
+  color: rgba(245,240,232,0.55);
+  text-transform: uppercase;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+.tf-source-text {
+  color: rgba(245,240,232,0.88);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Style list ─────────────────────────────────── */
+.tf-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 8px 10px;
+  min-height: 0;
+}
+.tf-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  margin-bottom: 4px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 5px;
+}
+.tf-row:hover { background: rgba(255,255,255,0.06); }
+
+.tf-meta {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.tf-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(245,240,232,0.66);
+}
+.tf-preview {
+  font-size: 13px;
+  color: #f5f0e8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tf-copy,
+.tf-replace {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font: 600 11px/1 -apple-system, "Segoe UI", system-ui, sans-serif;
+  cursor: pointer;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.18);
+}
+.tf-copy {
+  background: transparent;
+  color: rgba(245,240,232,0.78);
+}
+.tf-copy:hover  { background: rgba(255,255,255,0.10); color: #fff; }
+.tf-copy:active { transform: scale(0.95); }
+.tf-copy.copied {
+  background: #1f6f3c;
+  border-color: rgba(255,255,255,0.18);
+  color: #fff;
+}
+
+.tf-replace {
+  background: #2E5082;
+  color: #fff;
+}
+.tf-replace:hover:not(:disabled)  { background: #3a64a3; }
+.tf-replace:active:not(:disabled) { transform: scale(0.95); }
+.tf-replace.done {
+  background: #1f6f3c;
+  border-color: rgba(255,255,255,0.18);
+}
+.tf-replace:disabled {
+  background: rgba(255,255,255,0.04);
+  color: rgba(245,240,232,0.30);
+  border-color: rgba(255,255,255,0.06);
+  cursor: not-allowed;
+}
+
+/* ── Section header (v1.6.0 F16) ────────────────── */
+/* Lightweight label that separates the Cleanup row from the
+   Unicode Styles rows. Uses the gold accent for the left rule
+   (matches the unistyle.io brand direction set by icon.svg and
+   the OG image) while the Unicode-style rows below keep their
+   blue accents - this is a tone hint, not a full redesign. */
+.tf-section-header {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: rgba(245,240,232,0.55);
+  padding: 8px 6px 4px;
+  border-left: 2px solid #A07020;
+  margin: 2px 0 4px;
+  background: linear-gradient(90deg, rgba(160,112,32,0.10), transparent 60%);
+}
+.tf-cleanup-section { margin-bottom: 8px; }
+/* Cleanup row gets a gold left-border + slightly lifted background to
+   visually distinguish it from the Unicode-style rows. The Replace
+   button uses the gold fill so the primary action reads as
+   "cleanup action" rather than "style action". */
+.tf-cleanup-section .tf-row {
+  border-left: 3px solid #A07020;
+  background: rgba(160, 112, 32, 0.08);
+}
+.tf-cleanup-section .tf-row:hover {
+  background: rgba(160, 112, 32, 0.14);
+}
+.tf-cleanup-section .tf-replace {
+  background: #A07020;
+}
+.tf-cleanup-section .tf-replace:hover:not(:disabled) {
+  background: #b88234;
+}
+
+/* ── Error state ────────────────────────────────── */
+.tf-error {
+  padding: 18px 12px;
+  text-align: center;
+  color: rgba(245,240,232,0.66);
+  font-size: 12px;
+}
+
+/* ── Scrollbar polish ───────────────────────────── */
+.tf-list::-webkit-scrollbar { width: 6px; }
+.tf-list::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.15);
+  border-radius: 3px;
+}
