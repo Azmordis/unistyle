@@ -28,6 +28,23 @@ function mapRange(text, ucBase, lcBase, dgBase) {
   }).join('');
 }
 
+/* Grapheme-aware iteration. Uses Intl.Segmenter where available so that ZWJ
+ * sequences (👨‍👩‍👧), skin-tone modifiers (👍🏽), and emoji with variation
+ * selectors (❤️) are visited as ONE unit. Falls back to code-point iteration
+ * for old browsers. Used by transforms that append combining marks - those
+ * marks break ZWJ joining when applied between each code point of a sequence. */
+const _seg = (typeof Intl !== 'undefined' && Intl.Segmenter)
+  ? new Intl.Segmenter(undefined, { granularity: 'grapheme' })
+  : null;
+function graphemes(text) {
+  if (_seg) return Array.from(_seg.segment(text), s => s.segment);
+  return [...text];
+}
+/* Returns true if a grapheme is an emoji / pictograph / regional indicator
+ * that should NOT receive combining marks (they'd break the visible glyph). */
+const _emojiRe = /\p{Extended_Pictographic}|\p{Emoji_Component}|\p{Regional_Indicator}/u;
+const isEmojiGrapheme = g => g.length > 1 || _emojiRe.test(g);
+
 /* ── Exception maps ───────────────────────────────────── */
 const SCRIPT_LOWER = [
   0x1D4B6,0x1D4B7,0x1D4B8,0x1D4B9,
@@ -102,9 +119,10 @@ function zalgoText(text, level) {
   const maxB = [1, 3, 5][level - 1] || 1;
   const pick = arr => cp(arr[Math.floor(Math.random() * arr.length)]);
   const rnd  = (arr, max) => Array.from({length: Math.floor(Math.random() * max) + 1}, () => pick(arr)).join('');
-  return [...text].map(ch => {
-    if (ch === ' ' || ch === '\n' || ch === '\t') return ch;
-    return ch + rnd(ZALGO_ABOVE, maxA) + rnd(ZALGO_BELOW, maxB);
+  return graphemes(text).map(g => {
+    if (g === ' ' || g === '\n' || g === '\t') return g;
+    if (isEmojiGrapheme(g)) return g;          // skip combining marks on emoji - breaks ZWJ sequences
+    return g + rnd(ZALGO_ABOVE, maxA) + rnd(ZALGO_BELOW, maxB);
   }).join('');
 }
 
@@ -182,13 +200,13 @@ const STYLES = [
   },
   {
     key:'under', label:'Underline', compat:{d:2,t:2,n:1,s:0},
-    tip:'Unicode combining underline (U+0332) attaches to every character. Renders in most modern apps — may appear inconsistent in Notion.',
-    fn: t => [...t].map(c=>c+'̲').join('')
+    tip:'Unicode combining underline (U+0332) attaches to every character. Renders in most modern apps — may appear inconsistent in Notion. Emoji pass through unmarked.',
+    fn: t => graphemes(t).map(g => isEmojiGrapheme(g) ? g : g + '̲').join('')
   },
   {
     key:'strike', label:'Strikethrough', compat:{d:2,t:2,n:1,s:0},
-    tip:'Unicode combining strikethrough (U+0336) — works in any Unicode-aware app, unlike ~~Markdown~~ which only works in a few.',
-    fn: t => [...t].map(c=>c+'̶').join('')
+    tip:'Unicode combining strikethrough (U+0336) — works in any Unicode-aware app, unlike ~~Markdown~~ which only works in a few. Emoji pass through unmarked.',
+    fn: t => graphemes(t).map(g => isEmojiGrapheme(g) ? g : g + '̶').join('')
   },
   {
     key:'mono', label:'Monospace', compat:{d:2,t:2,n:2,s:0},

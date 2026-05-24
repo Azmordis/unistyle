@@ -61,7 +61,9 @@
       {"@type":"Question","name":"Does UniStyle work in Discord?","acceptedAnswer":{"@type":"Answer","text":"Yes. UniStyle generates Unicode Mathematical Alphanumeric characters that render in Discord text fields, bios, and status. Different from Discord's own Markdown bold and works anywhere plain text is accepted."}},
       {"@type":"Question","name":"Is UniStyle free?","acceptedAnswer":{"@type":"Answer","text":"Yes. Both the Chrome extension and the web tool at unistyle.io are entirely free with no account, no subscription, no payment."}},
       {"@type":"Question","name":"What platforms does UniStyle support?","acceptedAnswer":{"@type":"Answer","text":"Discord, Notion, Twitter/X, Slack, LinkedIn, email. Anywhere plain text input is accepted, the Unicode characters render."}},
-      {"@type":"Question","name":"How is UniStyle different from Markdown bold?","acceptedAnswer":{"@type":"Answer","text":"Markdown only works inside the message body of apps that parse it. UniStyle generates actual Unicode characters, so the formatting travels with the text. It works in bios, status fields, third-party clients, and anywhere Markdown is unavailable."}}
+      {"@type":"Question","name":"How is UniStyle different from Markdown bold?","acceptedAnswer":{"@type":"Answer","text":"Markdown only works inside the message body of apps that parse it. UniStyle generates actual Unicode characters, so the formatting travels with the text. It works in bios, status fields, third-party clients, and anywhere Markdown is unavailable."}},
+      {"@type":"Question","name":"My installed UniStyle still shows the old icon. How do I refresh it?","acceptedAnswer":{"@type":"Answer","text":"New icons reach most installed users within a day via the service worker update cycle. On Android the home-screen launcher icon is pinned at install time - uninstall and reinstall from unistyle.io via Add to Home Screen to refresh it. Desktop and iOS installs pick up new icons automatically."}},
+      {"@type":"Question","name":"What's the difference between the mobile web app and the Chrome extension?","acceptedAnswer":{"@type":"Answer","text":"The web app at unistyle.io is full-featured on every device - all 22 styles, character limit guides, history, favorites, and special characters work identically on mobile and desktop, and the app can be installed as a PWA on Android, iOS, or desktop. The Chrome extension is desktop-only (Chrome does not support extensions on mobile) and adds keyboard shortcuts (Ctrl+Shift+Y, Ctrl+Shift+U), a right-click Format with UniStyle menu on any text field, and an inline formatting panel that replaces selected text in place. On a phone use the web app; on a desktop browser the extension is faster for repeated use."}}
     ]
   }
   </script>
@@ -75,23 +77,61 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      /* BwB indigo-only signature, locked 2026-05-23 v1.3.
-       * See project-blueprints/build-with-baker/shared/palette.css
-       * and project-blueprints/build-with-baker/future-enhancements/
-       * indigo-only-decision-2026-05-23.md */
-      --primary:        #2B4A8B;        /* indigo - only saturated brand color */
-      --primary-dark:   #243F76;        /* indigo hover */
-      --primary-light:  #4A6BB8;        /* lifted indigo for chip-bg etc */
-      --accent:         #2B4A8B;        /* ALIAS: legacy --accent -> primary */
-      --accent-bg:      #E8EDF7;        /* indigo-soft (was amber bg) */
-      --accent-border:  #2B4A8B;        /* indigo border (was gold) */
-      --accent-hover:   #243F76;        /* indigo hover (was gold hover) */
-      --neutral:        #526070;
-      --bg:             #EFF2F7;
-      --white:          #FFFFFF;
-      --border:         #d0dcea;
-      --text-light:     #b8cce0;
-      --text-dark:      #1e2a38;
+      /* ─────────────────────────────────────────────────────────────────────
+       * Build with Baker v1.3 indigo-only umbrella palette (canonical tokens).
+       * Source of truth: project-blueprints/build-with-baker/shared/palette.css
+       * Decision brief:  project-blueprints/build-with-baker/future-enhancements/
+       *                  indigo-only-decision-2026-05-23.md
+       *
+       * Inheritance pattern: UniStyle's local --primary / --accent / etc. tokens
+       * below alias these via var(). When BwB ships a palette revision, update
+       * the --bwb-* block here to match shared/palette.css; local tokens follow
+       * automatically. Static site so we can't @import the CSS file; we inline-
+       * copy the umbrella tokens and treat divergence as a drift bug.
+       * ───────────────────────────────────────────────────────────────────── */
+
+      /* BwB brand family - only saturated brand color */
+      --bwb-brand-primary:        #2B4A8B;
+      --bwb-brand-primary-hover:  #243F76;
+      --bwb-brand-primary-soft:   #E8EDF7;
+
+      /* BwB surface and structure */
+      --bwb-surface-base:         #F4F6FA;
+      --bwb-surface-elevated:     #FFFFFF;
+      --bwb-border-subtle:        #E1E6EE;
+      --bwb-border-strong:        #C2CAD6;
+
+      /* BwB text ramp */
+      --bwb-text-primary:         #0F1A2E;
+      --bwb-text-secondary:       #445063;
+      --bwb-text-muted:           #7A8497;
+      --bwb-text-inverse:         #FFFFFF;
+
+      /* BwB status family - functional state, not brand */
+      --bwb-status-success:       #2E7D5B;
+      --bwb-status-warning:       #B5851A;
+      --bwb-status-danger:        #B82F2F;
+      --bwb-status-info:          #3A6FA8;
+
+      /* ─────────────────────────────────────────────────────────────────────
+       * UniStyle local tokens - alias to BwB umbrella above.
+       * Local names preserved for compatibility with existing class-level CSS.
+       * UniStyle-specific values (--primary-light, --text-light, --text-dark)
+       * stay inline because they have no BwB equivalent.
+       * ───────────────────────────────────────────────────────────────────── */
+      --primary:        var(--bwb-brand-primary);
+      --primary-dark:   var(--bwb-brand-primary-hover);
+      --primary-light:  #4A6BB8;                          /* UniStyle-only: lifted indigo for chip-bg */
+      --accent:         var(--bwb-brand-primary);         /* legacy alias for --primary */
+      --accent-bg:      var(--bwb-brand-primary-soft);
+      --accent-border:  var(--bwb-brand-primary);
+      --accent-hover:   var(--bwb-brand-primary-hover);
+      --neutral:        var(--bwb-text-secondary);
+      --bg:             var(--bwb-surface-base);
+      --white:          var(--bwb-surface-elevated);
+      --border:         var(--bwb-border-subtle);
+      --text-light:     #b8cce0;                          /* UniStyle-only: light text on dark panel */
+      --text-dark:      var(--bwb-text-primary);
     }
 
     html, body {
@@ -334,7 +374,7 @@
       transition: border-color 0.15s, box-shadow 0.15s, height 0.12s ease-out;
     }
     #inputText::placeholder { color: #94a3b8; }
-    #inputText:focus { border-color: rgba(160,112,32,0.8); box-shadow: 0 0 0 2px rgba(160,112,32,0.28); }
+    #inputText:focus { border-color: rgba(43,74,139,0.8); box-shadow: 0 0 0 2px rgba(43,74,139,0.28); }
 
     /* ── Char counter ────────────────────────────────────── */
     .char-counter {
@@ -380,6 +420,12 @@
       white-space: nowrap;
       pointer-events: none;
     }
+    /* Discord (66.67%) and Instagram (73.33%) ticks sit 6.66% apart; the default
+       centered labels collide. Option B alignment: Discord label ends right-justified
+       at its tick, Instagram label starts left-justified at its tick. X/Twitter stays
+       centered. Padding gives 2px breathing room from the tick. */
+    .limit-marker.lm-right span { left: auto; right: 50%; transform: none; padding-right: 4px; }
+    .limit-marker.lm-left  span { left: 50%;  right: auto; transform: none; padding-left: 4px; }
     .limit-status {
       margin-top: 16px;
       font-size: 9.5px;
@@ -656,6 +702,48 @@
       transition: opacity 0.15s;
     }
 
+    /* ── Mobile help bar (replaces desktop tooltip portal on touch devices) ── */
+    .mobile-help-bar {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 10000;
+      background: #1a2535;
+      color: #fff;
+      font-size: 13px;
+      line-height: 1.4;
+      padding: 10px 44px 10px 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+      transform: translateY(-100%);
+      transition: transform 0.18s ease-out;
+    }
+    .mobile-help-bar.active { display: block; transform: translateY(0); }
+    .mhb-close {
+      position: absolute;
+      right: 4px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.75);
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 0;
+      border-radius: 4px;
+    }
+    .mhb-close:hover, .mhb-close:focus { color: #fff; background: rgba(255,255,255,0.08); outline: none; }
+    /* Highlight the element whose tip is currently shown in the mobile help bar */
+    [data-tip-active="true"] {
+      outline: 2px solid #fbbf24;
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+
     /* ── Footer ──────────────────────────────────────────── */
     .app-footer {
       background: var(--primary-dark);
@@ -673,7 +761,7 @@
      * and bird-mark icon. */
     .app-footer a.bwb-attrib { color: rgba(255,255,255,0.55); margin-left: auto; padding-left: 14px; border-left: 1px solid rgba(255,255,255,0.12); }
     .app-footer a.bwb-attrib:hover { color: rgba(255,255,255,0.95); }
-    /* Ko-fi support button - visually distinct from the text links, gold accent */
+    /* Ko-fi support button - visually distinct from the text links, Ko-fi red */
     .app-footer a.kofi-button {
       display: inline-block;
       background: #FF5E5B;        /* Ko-fi vendor red (required) */
@@ -692,7 +780,7 @@
 
     /* ── Mobile ──────────────────────────────────────────── */
     @media (max-width: 680px) {
-      .panels { grid-template-columns: 1fr; grid-template-rows: 45vh 1fr; }
+      .panels { grid-template-columns: 1fr; grid-template-rows: 45dvh 1fr; }
       .left-panel { border-right: none; border-bottom: 2px solid var(--primary-dark); }
       /* Hide the per-marker text labels on the limit bar - they overlap at narrow widths.
          The .limit-status row below shows the same platform-limits info readably. */
@@ -815,11 +903,14 @@
       /* Recover vertical space in the header */
       .app-header { padding: 8px 12px; }
 
-      /* Shift the stacked-panel split from 50vh/1fr to 42vh/1fr so the right panel
-         (output list) gets more visible height - enough for 4 whole style rows on a
-         Pixel-4XL-class phone (~412x869) while keeping the textarea usable (~130px).
+      /* Stacked-panel split tuned for at-least-3 style rows guaranteed on any
+         mid-size phone (Pixel 4XL class ~412x869 logical px with address bar visible).
+         IMPORTANT: must use dvh not vh. The .app container is 100dvh (visible viewport),
+         so .panels itself measures dvh; using vh on the children overshoots when the
+         address bar is showing and collapses the right panel to 2-3 rows. dvh-based
+         allocation guarantees the right panel gets ~58% of the visible viewport.
          (Combo is already hidden across mobile by the <=680px block above.) */
-      .panels { grid-template-rows: 42vh 1fr; }
+      .panels { grid-template-rows: 38dvh 1fr; }
 
       /* Touch targets: Apple HIG recommends 44x44px minimum tap area.
          Primary action gets 44px; secondary per-row buttons get 36px.
@@ -844,7 +935,7 @@
        input split down to 42vh so the style list still gets whole rows with no scroll.
        (<=480px phones already get 42vh above; chip/nav chrome trims live in <=680px.) */
     @media (max-width: 680px) and (max-height: 720px) {
-      .panels { grid-template-rows: 42vh 1fr; }
+      .panels { grid-template-rows: 38dvh 1fr; }
     }
 
     /* Chrome Extension section - desktop only (hidden on mobile; extension is not available on mobile) */
@@ -938,6 +1029,9 @@
           <button class="btn-transform btn-chars-toggle" id="charsToggle"
             aria-expanded="false" aria-controls="specialCharsRow"
             data-tip="Show/hide special character insert buttons — em dash, smart quotes, arrows, math symbols, and more">Chars ▾</button>
+          <button class="btn-transform btn-chars-toggle" id="emojiToggle"
+            aria-expanded="false" aria-controls="emojiRow"
+            data-tip="Show/hide an emoji insert tray — common faces, hearts, hands, and symbols">Emoji ▾</button>
           <label class="help-toggle" data-tip="Show explanatory tooltips on hover — uncheck for a cleaner power-user UI">
             <input type="checkbox" id="helpToggle" checked />
             <span>Help Text</span>
@@ -971,10 +1065,41 @@
           <button class="btn-special" data-char="∞" aria-label="Insert infinity symbol" data-tip="Infinity ∞">∞</button>
           <button class="btn-special" data-char="π" aria-label="Insert pi symbol" data-tip="Pi π">π</button>
         </div>
+        <div class="special-chars-row emoji-row" id="emojiRow">
+          <span class="chars-label">Emoji:</span>
+          <button class="btn-special" data-char="😀" aria-label="Insert grinning face" data-tip="Grinning face 😀">😀</button>
+          <button class="btn-special" data-char="😂" aria-label="Insert tears of joy" data-tip="Face with tears of joy 😂">😂</button>
+          <button class="btn-special" data-char="🥰" aria-label="Insert smiling face with hearts" data-tip="Smiling face with hearts 🥰">🥰</button>
+          <button class="btn-special" data-char="😎" aria-label="Insert sunglasses face" data-tip="Smiling face with sunglasses 😎">😎</button>
+          <button class="btn-special" data-char="🤔" aria-label="Insert thinking face" data-tip="Thinking face 🤔">🤔</button>
+          <button class="btn-special" data-char="😭" aria-label="Insert loudly crying face" data-tip="Loudly crying face 😭">😭</button>
+          <button class="btn-special" data-char="🙄" aria-label="Insert eye roll" data-tip="Face with rolling eyes 🙄">🙄</button>
+          <button class="btn-special" data-char="😬" aria-label="Insert grimacing face" data-tip="Grimacing face 😬">😬</button>
+          <button class="btn-special" data-char="❤️" aria-label="Insert red heart" data-tip="Red heart ❤️">❤️</button>
+          <button class="btn-special" data-char="💔" aria-label="Insert broken heart" data-tip="Broken heart 💔">💔</button>
+          <button class="btn-special" data-char="🔥" aria-label="Insert fire" data-tip="Fire 🔥">🔥</button>
+          <button class="btn-special" data-char="✨" aria-label="Insert sparkles" data-tip="Sparkles ✨">✨</button>
+          <button class="btn-special" data-char="⭐" aria-label="Insert star" data-tip="Star ⭐">⭐</button>
+          <button class="btn-special" data-char="💯" aria-label="Insert hundred points" data-tip="Hundred points 💯">💯</button>
+          <button class="btn-special" data-char="👍" aria-label="Insert thumbs up" data-tip="Thumbs up 👍">👍</button>
+          <button class="btn-special" data-char="👎" aria-label="Insert thumbs down" data-tip="Thumbs down 👎">👎</button>
+          <button class="btn-special" data-char="🙏" aria-label="Insert folded hands" data-tip="Folded hands / thank you 🙏">🙏</button>
+          <button class="btn-special" data-char="👀" aria-label="Insert eyes" data-tip="Eyes 👀">👀</button>
+          <button class="btn-special" data-char="✅" aria-label="Insert check mark" data-tip="Check mark ✅">✅</button>
+          <button class="btn-special" data-char="❌" aria-label="Insert cross mark" data-tip="Cross mark ❌">❌</button>
+          <button class="btn-special" data-char="⚠️" aria-label="Insert warning sign" data-tip="Warning ⚠️">⚠️</button>
+          <button class="btn-special" data-char="🚀" aria-label="Insert rocket" data-tip="Rocket 🚀">🚀</button>
+          <button class="btn-special" data-char="🎉" aria-label="Insert party popper" data-tip="Party popper 🎉">🎉</button>
+          <button class="btn-special" data-char="💡" aria-label="Insert light bulb" data-tip="Light bulb 💡">💡</button>
+          <button class="btn-special" data-char="📌" aria-label="Insert pushpin" data-tip="Pushpin 📌">📌</button>
+          <button class="btn-special" data-char="📎" aria-label="Insert paperclip" data-tip="Paperclip 📎">📎</button>
+          <button class="btn-special" data-char="🔗" aria-label="Insert link" data-tip="Link 🔗">🔗</button>
+          <button class="btn-special" data-char="☕" aria-label="Insert coffee" data-tip="Coffee ☕">☕</button>
+        </div>
       </div>
       <textarea id="inputText"
         aria-label="Text to format"
-        placeholder="Type or paste your text here…&#10;&#10;Formatted versions appear on the right. Click Copy next to any style to grab it."
+        placeholder="Type or paste your text here…&#10;&#10;Formatted versions appear automatically. Click Copy next to any style to grab it."
         spellcheck="true"
         autocorrect="on"
       ></textarea>
@@ -983,8 +1108,8 @@
         <div class="limit-bar-track">
           <div class="limit-bar-fill" id="limitBarFill"></div>
           <div class="limit-marker" style="left:9.33%"><span>X/Twitter 280</span></div>
-          <div class="limit-marker" style="left:66.67%"><span>Discord 2k</span></div>
-          <div class="limit-marker" style="left:73.33%"><span>Instagram 2.2k</span></div>
+          <div class="limit-marker lm-right" style="left:66.67%"><span>Discord 2k</span></div>
+          <div class="limit-marker lm-left" style="left:73.33%"><span>Instagram 2.2k</span></div>
         </div>
         <div class="limit-status" id="limitStatus">X/Twitter 280 · Discord 2,000 · Instagram 2,200</div>
       </div>
@@ -1077,8 +1202,18 @@
   <div id="sr-announce" aria-live="polite" aria-atomic="true"
     style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;"></div>
 
-  <!-- Tooltip portal — position:fixed, never clipped by parent overflow:hidden -->
+  <!-- Tooltip portal — position:fixed, never clipped by parent overflow:hidden.
+       Desktop only - on mobile (pointer:coarse) the .mobile-help-bar below replaces it. -->
   <div id="tt-portal"></div>
+
+  <!-- Mobile help bar - slide-down panel at top of viewport that shows the data-tip
+       of whatever element was just tapped. Replaces the floating tooltip on mobile so
+       the help text never overlaps the button it describes. Element being described
+       gets [data-tip-active="true"] for a visible highlight outline. -->
+  <div id="mobileHelpBar" class="mobile-help-bar" role="status" aria-live="polite">
+    <span id="mobileHelpBarText"></span>
+    <button id="mobileHelpBarClose" type="button" class="mhb-close" aria-label="Dismiss help text">&times;</button>
+  </div>
 
 </div>
 
@@ -1155,6 +1290,16 @@
       <summary class="faq-q">Is my text saved or sent anywhere?</summary>
       <p class="faq-a">No. UniStyle runs entirely client-side in your browser. Text typed into the tool is converted locally on your device using JavaScript. Nothing is sent to a server, saved to a database, or logged. The page does not have any analytics that capture your text input. The optional Progressive Web App version stores recent inputs in local browser storage (on your device only) so the History button can let you revisit recent text - clear at any time via the Clear button. See the <a href="privacy.html">privacy policy</a> for full details.</p>
     </details>
+
+    <details class="faq-item">
+      <summary class="faq-q">My installed UniStyle still shows the old icon. How do I refresh it?</summary>
+      <p class="faq-a">When the UniStyle icon is updated, the new version reaches most installed users within a day - the next time the browser checks for service worker updates, the cache rolls over and the new icon is fetched. On Android the launcher icon (the icon on your home screen) is a special case: Android pins it at install time, so even after the cache updates the home-screen tile may still show the old version. The fix is to uninstall the installed PWA and reinstall from <a href="https://unistyle.io" rel="noopener">unistyle.io</a> using the browser's <strong>Add to Home Screen</strong> menu. Desktop and iOS installs pick up new icons automatically without reinstall.</p>
+    </details>
+
+    <details class="faq-item">
+      <summary class="faq-q">What's the difference between the mobile web app and the Chrome extension?</summary>
+      <p class="faq-a">The web app at <a href="https://unistyle.io" rel="noopener">unistyle.io</a> is full-featured on every device - all 22 styles, character limit guides, history, favorites, special character inserts, and the format sentences cleanup tool work identically on mobile and desktop. You can also install the web app as a PWA on Android, iOS, or desktop for offline use and a home-screen launcher. The <strong>Chrome extension is desktop-only</strong> (Chrome doesn't support extensions on mobile) and adds three things the web app can't: keyboard shortcuts (<code>Ctrl+Shift+Y</code> opens the popup, <code>Ctrl+Shift+U</code> reapplies your last style to selected text), a right-click <strong>Format with UniStyle</strong> menu on any text field, and an inline formatting panel that replaces selected text in place - no tab switching or copy-pasting. If you're on a phone, the web app is the right tool; on a desktop browser, the extension is faster for repeated use.</p>
+    </details>
   </div>
 </section>
 
@@ -1178,6 +1323,8 @@
   const stripBtn     = document.getElementById('stripBtn');
   const charsToggle  = document.getElementById('charsToggle');
   const specialCharsRow = document.getElementById('specialCharsRow');
+  const emojiToggle  = document.getElementById('emojiToggle');
+  const emojiRow     = document.getElementById('emojiRow');
   const installBtn   = document.getElementById('installBtn');
   const charCounter  = document.getElementById('charCounter');
   const limitBarFill = document.getElementById('limitBarFill');
@@ -1535,20 +1682,48 @@
   }
 
   /* ── Event listeners ─────────────────────────────────── */
-  formatBtn.addEventListener('click', () => { saveToHistory(inputEl.value); inputEl.value=formatSentences(inputEl.value); updateOutputs(); });
-  clearBtn.addEventListener('click',  () => { saveToHistory(inputEl.value); inputEl.value=''; updateOutputs(); inputEl.focus(); });
-  histBtn.addEventListener('click', e => { e.stopPropagation(); histIsOpen ? closeHistory() : openHistory(); });
-  capsBtn.addEventListener('click',   () => { inputEl.value=inputEl.value.toUpperCase(); updateOutputs(); });
-  lowerBtn.addEventListener('click',  () => { inputEl.value=inputEl.value.toLowerCase(); updateOutputs(); });
-  titleBtn.addEventListener('click',  () => { inputEl.value=inputEl.value.replace(/\b\w/g,c=>c.toUpperCase()); updateOutputs(); });
-  stripBtn.addEventListener('click',  () => { inputEl.value=stripUnicode(inputEl.value); updateOutputs(); });
+  /* Per-button click-to-undo: clicking the same transform button twice in a row
+     reverts the input to its pre-transform value. The tracker remembers the last
+     button + its before/after values; a click that matches both rolls back, any
+     other click (or any manual edit / input event) resets the tracker.
+     Cleared on input/paste so a manual edit invalidates the undo path. */
+  let lastTransform = { btn: null, before: null, after: null };
+  function applyTransform(btn, transformFn) {
+    const cur = inputEl.value;
+    if (lastTransform.btn === btn && cur === lastTransform.after) {
+      inputEl.value = lastTransform.before;
+      lastTransform = { btn: null, before: null, after: null };
+      updateOutputs();
+      return;
+    }
+    saveToHistory(cur);
+    const next = transformFn(cur);
+    inputEl.value = next;
+    lastTransform = { btn, before: cur, after: next };
+    updateOutputs();
+  }
+  inputEl.addEventListener('input', () => { lastTransform = { btn: null, before: null, after: null }; });
 
-  /* ── Chars toggle ────────────────────────────────────── */
+  formatBtn.addEventListener('click', () => applyTransform(formatBtn, formatSentences));
+  clearBtn.addEventListener('click',  () => { saveToHistory(inputEl.value); inputEl.value=''; lastTransform = { btn: null, before: null, after: null }; updateOutputs(); inputEl.focus(); });
+  histBtn.addEventListener('click', e => { e.stopPropagation(); histIsOpen ? closeHistory() : openHistory(); });
+  capsBtn.addEventListener('click',   () => applyTransform(capsBtn,  s => s.toUpperCase()));
+  lowerBtn.addEventListener('click',  () => applyTransform(lowerBtn, s => s.toLowerCase()));
+  titleBtn.addEventListener('click',  () => applyTransform(titleBtn, s => s.replace(/\b\w/g, c => c.toUpperCase())));
+  stripBtn.addEventListener('click',  () => applyTransform(stripBtn, stripUnicode));
+
+  /* ── Chars + Emoji toggles ───────────────────────────── */
   charsToggle.addEventListener('click', () => {
     const open = specialCharsRow.classList.toggle('open');
     charsToggle.classList.toggle('open', open);
     charsToggle.textContent = open ? 'Chars ▴' : 'Chars ▾';
     charsToggle.setAttribute('aria-expanded', String(open));
+  });
+  emojiToggle.addEventListener('click', () => {
+    const open = emojiRow.classList.toggle('open');
+    emojiToggle.classList.toggle('open', open);
+    emojiToggle.textContent = open ? 'Emoji ▴' : 'Emoji ▾';
+    emojiToggle.setAttribute('aria-expanded', String(open));
   });
 
   /* ── JS tooltip portal ───────────────────────────────── */
@@ -1570,8 +1745,49 @@
     }
   });
 
+  /* Mobile help bar: replaces the floating tooltip on coarse-pointer devices.
+     - On mobile, tooltip portal is suppressed; tapping any [data-tip] element
+       populates the help bar at the top of the viewport and highlights the
+       target via [data-tip-active="true"].
+     - Coexists with normal click handlers (button still does its job; help bar
+       just shows what it does).
+     - Auto-dismisses after 6 seconds, on close button, or when tapping outside
+       any [data-tip] element. */
+  const mobileHelpBar     = document.getElementById('mobileHelpBar');
+  const mobileHelpBarText = document.getElementById('mobileHelpBarText');
+  const mobileHelpBarClose = document.getElementById('mobileHelpBarClose');
+  const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+  let mhbActive = null;
+  let mhbTimer  = null;
+  function showMobileHelp(target) {
+    if (mhbActive && mhbActive !== target) mhbActive.removeAttribute('data-tip-active');
+    mhbActive = target;
+    target.setAttribute('data-tip-active', 'true');
+    mobileHelpBarText.textContent = target.dataset.tip;
+    mobileHelpBar.classList.add('active');
+    clearTimeout(mhbTimer);
+    mhbTimer = setTimeout(hideMobileHelp, 6000);
+  }
+  function hideMobileHelp() {
+    if (mhbActive) mhbActive.removeAttribute('data-tip-active');
+    mhbActive = null;
+    mobileHelpBar.classList.remove('active');
+    clearTimeout(mhbTimer);
+  }
+  mobileHelpBarClose.addEventListener('click', e => { e.stopPropagation(); hideMobileHelp(); });
+  if (isCoarsePointer) {
+    document.addEventListener('click', e => {
+      if (!helpEnabled) return;
+      if (e.target.closest('#mobileHelpBar')) return;
+      const t = e.target.closest('[data-tip]');
+      if (t) showMobileHelp(t);
+      else if (mhbActive) hideMobileHelp();
+    }, true);
+  }
+
   document.addEventListener('mouseover', e => {
     if (!helpEnabled) return;
+    if (isCoarsePointer) return;                         // mobile uses help bar, not portal
     const t = e.target.closest('[data-tip]');
     if (!t || t === ttActive) return;
     ttActive = t;
