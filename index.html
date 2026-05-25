@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <!-- Security headers (meta-equivalent; GitHub Pages does not allow custom HTTP headers).
        Note: frame-ancestors is intentionally omitted because browsers ignore it from <meta>. -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none';">
@@ -542,7 +542,7 @@
       border: 1px solid transparent;
       transition: border-color 0.12s;
     }
-    .style-row:hover { border-color: var(--accent-border); }
+    .style-row:hover { border-color: var(--us-accent); }
 
     /* ── Pill cell (pill + compat dots) ─────────────────── */
     .pill-cell { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; }
@@ -767,7 +767,7 @@
       background: var(--primary-dark);
       border-top: 3px solid var(--us-accent);
       flex-shrink: 0;
-      padding: 5px 16px;
+      padding: 5px 16px calc(5px + env(safe-area-inset-bottom)) 16px;
       display: flex;
       align-items: center;
     }
@@ -806,7 +806,7 @@
       /* Restore flex-fill textarea on mobile - matches pre-2026-05-20 behavior.
          !important on height beats the JS auto-grow's inline style so the textarea
          flex-fills the 50vh left-panel cell rather than locking to a content-driven height. */
-      #inputText { flex: 1; height: auto !important; min-height: 0 !important; max-height: none !important; }
+      #inputText { flex: 1; height: auto !important; min-height: 140px !important; max-height: none !important; font-size: 16px; }
       /* Tighten limit-status so the platform list wraps cleanly if needed */
       .limit-status { font-size: 10px; line-height: 1.4; word-spacing: 0.05em; }
       /* Pagination shows exactly PAGE_SIZE rows per page, so the list must never scroll
@@ -1436,7 +1436,7 @@
         noFavMsg = document.createElement('p');
         noFavMsg.id = 'no-favs-msg';
         noFavMsg.style.cssText = 'font-size:12px;color:#bbb;padding:12px 4px;font-style:italic;';
-        noFavMsg.textContent = 'No favorites yet — click ♥ on any style to pin it here.';
+        noFavMsg.textContent = 'No favorites yet — click ★ on any style to pin it here.';
         outputList.prepend(noFavMsg);
       }
       noFavMsg.style.display = '';
@@ -1610,7 +1610,7 @@
 
       const heartBtn = document.createElement('button');
       heartBtn.className = 'heart-btn'+(favorites.has(style.key)?' active':'');
-      heartBtn.setAttribute('aria-label','Favorite '+style.label); heartBtn.textContent = '♥';
+      heartBtn.setAttribute('aria-label','Favorite '+style.label); heartBtn.textContent = '★';
       heartBtn.addEventListener('click', () => toggleFavorite(style.key, heartBtn));
 
       const copyBtn = document.createElement('button');
