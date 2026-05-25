@@ -56,13 +56,22 @@ html, body {
 .t-badge {
   width: 24px; height: 24px;
   border-radius: 6px;
-  background: var(--us-accent);
-  color: #fff;
-  font-weight: 800;
+  /* Indigo gradient matches the brand icon (white U on indigo) and the panel's
+     .tf-badge. The 1px amber border lifts the tile off the dark-navy popup
+     background and ties the badge to the rest of the amber accent moments
+     (header rule, cleanup section, stars). */
+  background: linear-gradient(135deg, var(--primary-2), var(--primary));
   display: grid;
   place-items: center;
-  font-size: 14px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid var(--us-accent);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.35), 0 0 8px rgba(224,168,46,0.18);
+}
+.t-badge svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 .app-header h1 {
   margin: 0;
@@ -185,7 +194,7 @@ textarea {
   max-height: 140px;
   outline: none;
 }
-textarea:focus { border-color: var(--accent); }
+textarea:focus { border-color: var(--us-accent); box-shadow: 0 0 0 2px rgba(224,168,46,0.18); }
 
 .char-counter {
   margin-top: 4px;
@@ -368,14 +377,63 @@ textarea::-webkit-scrollbar-thumb {
   border: 0;
 }
 
-/* Ko-fi tip link in footer */
+/* Ko-fi tip pill in footer - matches the .kofi-button pill on unistyle.io */
 .kofi-tip {
   text-align: center;
-  padding: 6px 0 8px;
-  font-size: 11px;
-  opacity: 0.55;
+  padding: 8px 0 10px;
 }
 .kofi-tip-link {
-  color: inherit;
+  display: inline-block;
+  background: #FF5E5B;        /* Ko-fi vendor red (required) */
+  color: #ffffff;
+  padding: 3px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+.kofi-tip-link:hover {
+  background: #E54845;        /* Ko-fi red, darker for hover */
+  color: #ffffff;
+}
+
+/* ── Post-copy aha-nudge ───────────────────────── */
+/* Shown once per session beneath the just-copied row. Amber border ties
+   it to the per-product accent system; Ko-fi vendor red on the tip pill. */
+.aha-nudge {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 4px;
+  padding: 8px 10px;
+  background: rgba(224, 168, 46, 0.10);
+  border: 1px solid var(--us-accent);
+  border-radius: 6px;
+  animation: ahaIn 200ms ease-out;
+}
+.aha-nudge.show { display: flex; }
+.aha-nudge .aha-msg { flex: 1; font-size: 11px; color: var(--us-accent-soft); }
+.aha-nudge .aha-tip {
+  background: #FF5E5B;
+  color: #fff;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   text-decoration: none;
 }
+.aha-nudge .aha-tip:hover { background: #E54845; }
+.aha-nudge .aha-x {
+  background: transparent;
+  border: 0;
+  color: rgba(255,255,255,0.45);
+  font-size: 14px;
+  padding: 0 4px;
+  cursor: pointer;
+  line-height: 1;
+}
+.aha-nudge .aha-x:hover { color: #fff; }
+@keyframes ahaIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }

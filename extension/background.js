@@ -29,6 +29,17 @@
 
 const MENU_ID = 'tf-format-selection';
 
+/* Let the content-script panel (an untrusted context) read/write
+   chrome.storage.session so the once-per-session post-copy nudge flag
+   ('ahaShown') is shared between the popup and the right-click panel.
+   storage.session is trusted-contexts-only by default, so without this the
+   panel's read throws. Called at top level so it re-applies on every service
+   worker startup. Guarded for older Chrome that lacks setAccessLevel — there
+   the panel nudge just won't show. */
+try {
+  chrome.storage.session.setAccessLevel({ accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS' });
+} catch (_) { /* setAccessLevel unavailable — panel nudge gracefully disabled */ }
+
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: MENU_ID,

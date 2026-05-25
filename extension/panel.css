@@ -258,3 +258,42 @@
   background: rgba(255,255,255,0.15);
   border-radius: 3px;
 }
+
+/* ── Post-copy aha-nudge ───────────────────────── */
+/* Shown once per session beneath the just-copied row, inside the shadow
+   root. Mirrors the popup nudge (dark-surface variant). */
+.aha-nudge {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 8px 6px;
+  padding: 8px 10px;
+  background: rgba(224, 168, 46, 0.10);
+  border: 1px solid var(--us-accent);
+  border-radius: 6px;
+  animation: ahaIn 200ms ease-out;
+}
+.aha-nudge.show { display: flex; }
+.aha-nudge .aha-msg { flex: 1; font-size: 11px; color: var(--us-accent-soft); }
+.aha-nudge .aha-tip {
+  background: #FF5E5B;
+  color: #fff;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+}
+.aha-nudge .aha-tip:hover { background: #E54845; }
+.aha-nudge .aha-x {
+  background: transparent;
+  border: 0;
+  color: rgba(255,255,255,0.45);
+  font-size: 14px;
+  padding: 0 4px;
+  cursor: pointer;
+  line-height: 1;
+}
+.aha-nudge .aha-x:hover { color: #fff; }
+@keyframes ahaIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }

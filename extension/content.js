@@ -244,6 +244,51 @@
     target = null;
   }
 
+  /* Post-copy aha-nudge: one-per-session Ko-fi tip inserted beneath the
+     row the user just copied, inside the shadow root. Shares the 'ahaShown'
+     flag with the popup via chrome.storage.session (background.js grants
+     untrusted-context access via setAccessLevel; without it storage.session
+     is trusted-only and the get below throws — caught so the nudge is simply
+     skipped). Built with DOM APIs, not innerHTML, so it survives host pages
+     that enforce Trusted Types (same discipline as the rest of this file).
+     Only wired to Copy, not Replace: Replace dismisses the panel ~350ms
+     later, so a nudge there would flash invisibly and waste the flag. */
+  async function maybeShowAhaNudge(anchorRow) {
+    if (!anchorRow) return;
+    try {
+      const { ahaShown } = await chrome.storage.session.get('ahaShown');
+      if (ahaShown) return;
+      await chrome.storage.session.set({ ahaShown: true });
+    } catch (_) { return; }
+
+    const nudge = document.createElement('div');
+    nudge.className = 'aha-nudge show';
+
+    const msg = document.createElement('span');
+    msg.className = 'aha-msg';
+    msg.textContent = 'Found this useful?';
+
+    const tip = document.createElement('a');
+    tip.className = 'aha-tip';
+    tip.href = 'https://ko-fi.com/abaker421';
+    tip.target = '_blank';
+    tip.rel = 'noopener noreferrer';
+    tip.textContent = '☕ Tip';
+    tip.addEventListener('click', () => setTimeout(() => nudge.remove(), 100));
+
+    const x = document.createElement('button');
+    x.className = 'aha-x';
+    x.type = 'button';
+    x.setAttribute('aria-label', 'Dismiss');
+    x.textContent = '×';
+    x.addEventListener('click', e => { e.stopPropagation(); nudge.remove(); });
+
+    nudge.appendChild(msg);
+    nudge.appendChild(tip);
+    nudge.appendChild(x);
+    anchorRow.insertAdjacentElement('afterend', nudge);
+  }
+
   /* ── Panel pieces ────────────────────────────────── */
   function buildHeader() {
     const h = document.createElement('div');
@@ -393,6 +438,7 @@
           setLastUsedStyle(style.key); // F15: remember this style for the hotkey
           copyBtn.textContent = 'Copied';
           copyBtn.classList.add('copied');
+          maybeShowAhaNudge(row);
           setTimeout(() => {
             if (copyBtn.isConnected) {
               copyBtn.textContent = 'Copy';
@@ -481,6 +527,7 @@
         setLastUsedStyle('format-sentences');
         copyBtn.textContent = 'Copied';
         copyBtn.classList.add('copied');
+        maybeShowAhaNudge(row);
         setTimeout(() => {
           if (copyBtn.isConnected) {
             copyBtn.textContent = 'Copy';

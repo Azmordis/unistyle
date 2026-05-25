@@ -160,7 +160,7 @@
     /* ── Header ─────────────────────────────────────────── */
     .app-header {
       background: var(--primary-dark);
-      border-bottom: 3px solid var(--accent);
+      border-bottom: 3px solid var(--us-accent);   /* was var(--accent) — now visible amber rule */
       flex-shrink: 0;
       padding: 12px 20px;
       display: flex;
@@ -178,16 +178,20 @@
       gap: 8px;
     }
     .header-title .t-badge {
-      background: var(--accent);
-      color: #fff;
-      font-size: 13px;
-      font-weight: 800;
       width: 26px;
       height: 26px;
       border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      border: 1px solid var(--us-accent);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.18), 0 0 8px rgba(224,168,46,0.18);
+      overflow: hidden;
+      display: inline-flex;
+      flex-shrink: 0;
+      padding: 0;
+    }
+    .header-title .t-badge svg {
+      width: 100%;
+      height: 100%;
+      display: block;
     }
     .header-title .title-text { display: flex; flex-direction: column; line-height: 1.1; }
     .header-title .title-tagline { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.6); letter-spacing: 0.01em; display: inline-flex; align-items: center; gap: 5px; }
@@ -614,8 +618,8 @@
       line-height: 1;
       transition: color 0.15s, transform 0.1s;
     }
-    .heart-btn:hover { color: #d47a7a; }
-    .heart-btn.active { color: #d05050; }
+    .heart-btn:hover { color: var(--us-accent); }
+    .heart-btn.active { color: var(--us-accent); }
     .heart-btn:active { transform: scale(1.3); }
 
     /* ── Zalgo slider ────────────────────────────────────── */
@@ -988,6 +992,35 @@
       white-space: nowrap;
     }
     @media (max-width: 680px) { .ext-section { display: none; } }
+
+    /* ── Post-copy aha-nudge ─────────────────────────────── */
+    /* Shown once per session beneath the just-copied row. Amber border ties
+       it to the per-product accent; --us-accent-deep text for AA on the soft
+       amber fill; Ko-fi vendor red on the tip pill. */
+    .aha-nudge {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      margin: 6px 0 10px;
+      padding: 10px 12px;
+      background: #FEF3D1;
+      border: 1px solid var(--us-accent);
+      border-radius: 8px;
+      animation: ahaIn 200ms ease-out;
+    }
+    .aha-nudge.show { display: flex; }
+    .aha-nudge .aha-msg { flex: 1; font-size: 12px; color: var(--us-accent-deep); }
+    .aha-nudge .aha-tip {
+      background: #FF5E5B; color: #fff; padding: 4px 12px; border-radius: 12px;
+      font-size: 11px; font-weight: 600; text-decoration: none;
+    }
+    .aha-nudge .aha-tip:hover { background: #E54845; }
+    .aha-nudge .aha-x {
+      background: transparent; border: 0; color: var(--us-accent-deep);
+      font-size: 16px; padding: 0 4px; cursor: pointer; opacity: 0.55;
+    }
+    .aha-nudge .aha-x:hover { opacity: 1; }
+    @keyframes ahaIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
   </style>
 </head>
 <body>
@@ -998,7 +1031,12 @@
   <!-- Header -->
   <header class="app-header">
     <h1 class="header-title">
-      <div class="t-badge" aria-hidden="true">U</div>
+      <div class="t-badge" aria-hidden="true">
+        <svg viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect width="192" height="192" rx="42" ry="42" fill="#2B4A8B"/>
+          <path fill-rule="evenodd" fill="#FFFFFF" d="M 38,38 L 64,38 L 64,114 A 14 14 0 0 0 78 128 L 114,128 A 14 14 0 0 0 128 114 L 128,38 L 154,38 L 154,118 A 36 36 0 0 1 118 154 L 74,154 A 36 36 0 0 1 38 118 Z"/>
+        </svg>
+      </div>
       <div class="title-text">
         <span class="brand-name">UniStyle</span>
         <span class="title-tagline">Unicode Text Formatter<span class="info-bubble" tabindex="0" data-tip="Unicode styles copy-paste into Discord, Notion, X/Twitter, Slack, and more. The formatting travels with the text." aria-label="Unicode styles copy-paste into Discord, Notion, X/Twitter, Slack, and more. The formatting travels with the text.">i</span></span>
@@ -1694,8 +1732,28 @@
     navigator.clipboard.writeText(el.textContent).then(() => {
       const orig=btn.textContent; btn.textContent='✓ Copied'; btn.classList.add('copied');
       srAnnounce.textContent = STYLES_MAP[key]?.label + ' style copied';
+      maybeShowAhaNudge(btn.closest('.style-row'));
       setTimeout(()=>{ btn.textContent=orig; btn.classList.remove('copied'); srAnnounce.textContent=''; },1500);
     });
+  }
+
+  /* Post-copy aha-nudge: surface a one-per-session Ko-fi tip beneath the
+     row the user just copied. Placement at the moment of value (right after
+     a successful copy) per the browser-extension-monetization module 04. */
+  function maybeShowAhaNudge(anchorRow) {
+    if (!anchorRow) return;
+    if (sessionStorage.getItem('aha-shown')) return;
+    sessionStorage.setItem('aha-shown', '1');
+    const nudge = document.createElement('div');
+    nudge.className = 'aha-nudge show';
+    nudge.innerHTML = `
+      <span class="aha-msg">Found this useful?</span>
+      <a class="aha-tip" href="https://ko-fi.com/abaker421" target="_blank" rel="noopener noreferrer">☕ Tip</a>
+      <button class="aha-x" aria-label="Dismiss">×</button>
+    `;
+    nudge.querySelector('.aha-x').addEventListener('click', () => nudge.remove());
+    nudge.querySelector('.aha-tip').addEventListener('click', () => setTimeout(() => nudge.remove(), 100));
+    anchorRow.insertAdjacentElement('afterend', nudge);
   }
 
   /* ── Event listeners ─────────────────────────────────── */

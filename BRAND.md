@@ -60,7 +60,7 @@ None are currently referenced in markup. Reserved for future state indicators (s
 **Extension popup (`extension/popup.css`):**
 
 - Header bottom rule (3px): `var(--us-accent)`
-- Header "U" badge background: `var(--us-accent)`
+- Header U badge: indigo gradient fill (`--primary-2` → `--primary`) + 1px `var(--us-accent)` border + amber glow; renders the brand-icon SVG U (not a system-font "U")
 - Star button hover/on state: `var(--us-accent)` with rgba(224,168,46,…) tints
 - Primary action button: `var(--primary)` indigo
 - Focus rings on textarea/search: `var(--accent)` light blue `#93c5fd` (existing UI affordance, separate from brand accent)
@@ -79,13 +79,27 @@ None are currently referenced in markup. Reserved for future state indicators (s
 
 **Website (`index.html`):**
 
+- Header U badge: indigo SVG tile + 1px `var(--us-accent)` border + amber glow; renders the brand-icon SVG U (not a system-font "U")
+- App header bottom rule (3px): `var(--us-accent)` (was `var(--accent)`/indigo, which was invisible on the indigo header bar)
+- Heart / favorite buttons: `var(--us-accent)` on hover and active (was red `#d47a7a`/`#d05050`)
 - Style-search focus border: `var(--us-accent)` with rgba(224,168,46,0.20) glow
 - FAQ link text: `var(--us-accent-deep)` (must be -deep, not -accent, for AA on white)
 - FAQ link hover: `var(--us-accent-hover)`
 - FAQ link focus-visible outline: `var(--us-accent)`
 
+**Post-copy nudge (popup, panel, website):**
+
+A one-per-session Ko-fi tip that appears beneath the just-copied row right after a successful copy (the "moment of value" placement). Same token treatment everywhere except the surface-tuned background and message text:
+
+- Border: `var(--us-accent)` (all three surfaces)
+- Background: `--us-accent-soft` `#FEF3D1` solid on the website (light surface); `rgba(224,168,46,0.10)` on the popup and panel (dark navy surfaces)
+- Message text: `var(--us-accent-deep)` on the website (AA on the soft amber fill); `var(--us-accent-soft)` on the popup and panel (light text on dark)
+- Tip pill: Ko-fi vendor red `#FF5E5B`, hover `#E54845` — the same vendor red as the footer tip button, never a UniStyle token
+- Frequency: once per session. Website uses `sessionStorage`; popup and panel share `chrome.storage.session` (`ahaShown`), enabled for the content-script panel by `setAccessLevel` in `background.js`. Wired to Copy only (Replace auto-dismisses the panel).
+
 ## Change history
 
+- **2026-05-25** — Visual polish pass: brand-icon SVG U replaces the system-font "U" in the popup and site headers (indigo tile + amber border); the site app-header bottom rule switched from indigo (`--accent`, invisible on the indigo bar) to amber (`--us-accent`); heart/favorite buttons on the site switched from red to amber; new post-copy aha-nudge component (Ko-fi tip at the moment of value) added to the popup, the right-click panel, and the website.
 - **2026-05-25** — Per-product accent retuned from robin red `#C04A3A` to amber `#E0A82E`. Robin red retired. `--us-accent-deep` added for text-on-white use. All `#A07020` chrome amber references in extension popup/panel/content.js migrated to the new amber tokens. BRAND.md created as the hard-coded source of truth.
 - **2026-05-23** — BwB umbrella locked to indigo-only signature. UniStyle's per-product accent (then robin red) preserved as a product-level exception.
 - **earlier** — Robin red `#C04A3A` established as `--us-accent` in extension and website; not applied in extension chrome due to dark-navy contrast issues.

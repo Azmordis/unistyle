@@ -217,6 +217,7 @@ async function handleCopy(btn) {
     btn.textContent = 'Copied';
     btn.classList.add('copied');
     srAnnounce.textContent = `${style.label} copied`;
+    maybeShowAhaNudge(btn.closest('.style-card'));
     setTimeout(() => {
       btn.textContent = 'Copy';
       btn.classList.remove('copied');
@@ -226,6 +227,27 @@ async function handleCopy(btn) {
     btn.textContent = 'Error';
     setTimeout(() => { btn.textContent = 'Copy'; }, 1100);
   }
+}
+
+/* Post-copy aha-nudge: surface a one-per-session Ko-fi tip beneath the
+   row the user just copied. Placement at the moment of value (right after
+   a successful copy) per the browser-extension-monetization module 04.
+   Uses chrome.storage.session so it resets each browser session. */
+async function maybeShowAhaNudge(anchorRow) {
+  if (!anchorRow) return;
+  const { ahaShown } = await chrome.storage.session.get('ahaShown');
+  if (ahaShown) return;
+  await chrome.storage.session.set({ ahaShown: true });
+  const nudge = document.createElement('div');
+  nudge.className = 'aha-nudge show';
+  nudge.innerHTML = `
+    <span class="aha-msg">Found this useful?</span>
+    <a class="aha-tip" href="https://ko-fi.com/abaker421" target="_blank" rel="noopener noreferrer">☕ Tip</a>
+    <button class="aha-x" aria-label="Dismiss">×</button>
+  `;
+  nudge.querySelector('.aha-x').addEventListener('click', () => nudge.remove());
+  nudge.querySelector('.aha-tip').addEventListener('click', () => setTimeout(() => nudge.remove(), 100));
+  anchorRow.insertAdjacentElement('afterend', nudge);
 }
 
 /* Replace the textarea with a transform applied to its current value. */
