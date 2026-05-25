@@ -12,6 +12,14 @@
   --primary: #2E5082;
   --primary-2: #3a64a3;
   --accent: #93c5fd;
+
+  /* UniStyle per-product accent (robin red) - defined for parity with the web app.
+     --us-accent not applied in extension: dark-navy surfaces fail contrast.
+     Revisit when light-mode extension is available or a dark-mode accent variant
+     is designed. */
+  --us-accent: #C04A3A;
+  --us-accent-hover: #A53D2E;
+  --us-accent-soft: #FAEAE6;
 }
 
 * { box-sizing: border-box; }

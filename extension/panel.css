@@ -8,6 +8,17 @@
 
 :host, * { box-sizing: border-box; }
 
+/* UniStyle per-product accent (robin red) - defined on :host so it cascades into
+   the shadow tree. Defined for parity with the web app.
+   --us-accent not applied in extension: dark-navy surfaces fail contrast.
+   Revisit when light-mode extension is available or a dark-mode accent variant
+   is designed. */
+:host {
+  --us-accent: #C04A3A;
+  --us-accent-hover: #A53D2E;
+  --us-accent-soft: #FAEAE6;
+}
+
 .tf-panel {
   width: 360px;
   max-height: 480px;
