@@ -67,7 +67,7 @@ None are currently referenced in markup. Reserved for future state indicators (s
 
 **Extension floating panel (`extension/panel.css`):**
 
-- Section header left border + soft gradient: `var(--us-accent)`
+- Section header ("Cleanup" / "Unicode Styles" labels): neutral muted text, no accent — amber removed 2026-05-25 so the Cleanup row + Replace button reads as the sole amber focal point
 - Cleanup section row left border + soft bg: `var(--us-accent)` with rgba(224,168,46,…) tints
 - Cleanup "Replace" button fill: `var(--us-accent)`, hover `var(--us-accent-hover)`
 - Style replace button: `#2E5082` indigo
@@ -99,6 +99,7 @@ A one-per-session Ko-fi tip that appears beneath the just-copied row right after
 
 ## Change history
 
+- **2026-05-25** — Panel section-header amber accent removed (`.tf-section-header` left border + soft gradient dropped). Indigo was not a viable replacement on the dark-navy panel (invisible, same reason the site header rule moved off indigo), so the labels are now neutral muted text. Amber is now concentrated on the actionable Cleanup row + Replace button. Web app: app-footer top rule and Format Sentences button border switched to `var(--us-accent)` for header/footer symmetry.
 - **2026-05-25** — Visual polish pass: brand-icon SVG U replaces the system-font "U" in the popup and site headers (indigo tile + amber border); the site app-header bottom rule switched from indigo (`--accent`, invisible on the indigo bar) to amber (`--us-accent`); heart/favorite buttons on the site switched from red to amber; new post-copy aha-nudge component (Ko-fi tip at the moment of value) added to the popup, the right-click panel, and the website.
 - **2026-05-25** — Per-product accent retuned from robin red `#C04A3A` to amber `#E0A82E`. Robin red retired. `--us-accent-deep` added for text-on-white use. All `#A07020` chrome amber references in extension popup/panel/content.js migrated to the new amber tokens. BRAND.md created as the hard-coded source of truth.
 - **2026-05-23** — BwB umbrella locked to indigo-only signature. UniStyle's per-product accent (then robin red) preserved as a product-level exception.

@@ -210,10 +210,10 @@
 }
 
 /* ── Section header (v1.6.0 F16) ────────────────── */
-/* Lightweight label that separates the Cleanup row from the
-   Unicode Styles rows. Uses the UniStyle per-product amber accent
-   for the left rule while the Unicode-style rows below keep their
-   blue accents - this is a tone hint, not a full redesign. */
+/* Lightweight uppercase label that separates the Cleanup row from the
+   Unicode Styles rows. Neutral muted text only - the amber accent is
+   reserved for the actionable Cleanup row + Replace button so it reads
+   as the single focal action rather than decoration on passive labels. */
 .tf-section-header {
   font-size: 9px;
   font-weight: 700;
@@ -221,9 +221,7 @@
   text-transform: uppercase;
   color: rgba(245,240,232,0.55);
   padding: 8px 6px 4px;
-  border-left: 2px solid var(--us-accent);
   margin: 2px 0 4px;
-  background: linear-gradient(90deg, rgba(224, 168, 46, 0.10), transparent 60%);
 }
 .tf-cleanup-section { margin-bottom: 8px; }
 /* Cleanup row gets an amber left-border + slightly lifted background to
