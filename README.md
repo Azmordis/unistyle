@@ -1,7 +1,7 @@
 # UniStyle
 
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-Support-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/abaker421)
-[![Live](https://img.shields.io/badge/Live-unistyle.io-2E5082)](https://unistyle.io)
+[![Live](https://img.shields.io/badge/Live-unistyle.io-2B4A8B)](https://unistyle.io)
 [![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
 
 > Convert plain text into 22 Unicode styles for Discord, Notion, X, Slack, and anywhere Unicode renders. Free. No signup, no tracking, no server.

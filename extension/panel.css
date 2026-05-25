@@ -54,14 +54,12 @@
 .tf-badge {
   width: 20px; height: 20px;
   border-radius: 5px;
-  background: linear-gradient(135deg, #3a64a3, #2E5082);
-  color: #fff;
-  font-weight: 800;
-  font-size: 12px;
-  display: grid;
-  place-items: center;
+  overflow: hidden;
+  display: inline-flex;
+  flex-shrink: 0;
   box-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
+.tf-badge svg { width: 100%; height: 100%; display: block; }
 .tf-title-text {
   font-size: 13px;
   font-weight: 600;
@@ -193,7 +191,7 @@
 }
 
 .tf-replace {
-  background: #2E5082;
+  background: #2B4A8B;
   color: #fff;
 }
 .tf-replace:hover:not(:disabled)  { background: #3a64a3; }

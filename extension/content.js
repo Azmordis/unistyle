@@ -298,7 +298,7 @@
     left.className = 'tf-title';
     const badge = document.createElement('span');
     badge.className = 'tf-badge';
-    badge.textContent = 'U';
+    badge.innerHTML = '<svg viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="tfPanelBadgeBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3a64a3"/><stop offset="100%" stop-color="#2B4A8B"/></linearGradient></defs><rect width="192" height="192" rx="42" ry="42" fill="url(#tfPanelBadgeBg)"/><path fill-rule="evenodd" fill="#FFFFFF" stroke="#0F1626" stroke-width="2" stroke-linejoin="round" d="M 38,38 L 64,38 L 64,114 A 14 14 0 0 0 78 128 L 114,128 A 14 14 0 0 0 128 114 L 128,38 L 154,38 L 154,118 A 36 36 0 0 1 118 154 L 74,154 A 36 36 0 0 1 38 118 Z"/></svg>';
     const name = document.createElement('span');
     name.className = 'tf-title-text';
     name.textContent = 'UniStyle';

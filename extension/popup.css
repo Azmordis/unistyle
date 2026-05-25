@@ -9,7 +9,7 @@
   --border: rgba(255,255,255,0.10);
   --text: #f5f0e8;
   --text-dim: rgba(245,240,232,0.66);
-  --primary: #2E5082;
+  --primary: #2B4A8B;
   --primary-2: #3a64a3;
   --accent: #93c5fd;
 
@@ -56,17 +56,13 @@ html, body {
 .t-badge {
   width: 24px; height: 24px;
   border-radius: 6px;
-  /* Indigo gradient matches the brand icon (white U on indigo) and the panel's
-     .tf-badge. The 1px amber border lifts the tile off the dark-navy popup
-     background and ties the badge to the rest of the amber accent moments
-     (header rule, cleanup section, stars). */
-  background: linear-gradient(135deg, var(--primary-2), var(--primary));
-  display: grid;
-  place-items: center;
+  /* Background gradient inherited from inline SVG. No border per 2026-05-25
+     no-border icon decision (matches the standalone PNG icons). Subtle shadow only. */
   overflow: hidden;
+  display: inline-flex;
+  flex-shrink: 0;
   padding: 0;
-  border: 1px solid var(--us-accent);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.35), 0 0 8px rgba(224,168,46,0.18);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.35);
 }
 .t-badge svg {
   width: 100%;

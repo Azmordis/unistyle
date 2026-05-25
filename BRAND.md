@@ -70,7 +70,7 @@ None are currently referenced in markup. Reserved for future state indicators (s
 - Section header ("Cleanup" / "Unicode Styles" labels): neutral muted text, no accent — amber removed 2026-05-25 so the Cleanup row + Replace button reads as the sole amber focal point
 - Cleanup section row left border + soft bg: `var(--us-accent)` with rgba(224,168,46,…) tints
 - Cleanup "Replace" button fill: `var(--us-accent)`, hover `var(--us-accent-hover)`
-- Style replace button: `#2E5082` indigo
+- Style replace button: `#2B4A8B` indigo (updated 2026-05-25 from old `#2E5082` for v3 palette parity)
 - "Editable" mode badge: `#1f6f3c` green (functional, not brand)
 
 **Extension toast (`extension/content.js`):**
