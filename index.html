@@ -90,7 +90,8 @@
        * copy the umbrella tokens and treat divergence as a drift bug.
        * ───────────────────────────────────────────────────────────────────── */
 
-      /* BwB brand family - only saturated brand color */
+      /* BwB umbrella brand - the umbrella's saturated brand color. Per-product
+       * accents may add their own (see UniStyle robin red --us-accent below). */
       --bwb-brand-primary:        #2B4A8B;
       --bwb-brand-primary-hover:  #243F76;
       --bwb-brand-primary-soft:   #E8EDF7;
@@ -132,6 +133,14 @@
       --border:         var(--bwb-border-subtle);
       --text-light:     #b8cce0;                          /* UniStyle-only: light text on dark panel */
       --text-dark:      var(--bwb-text-primary);
+
+      /* UniStyle per-product accent (robin red) - BwB design system Module 03
+       * semantic-token override. SECONDARY layer: use on white (#FFFFFF) or
+       * near-white (--bg #F4F6FA) surfaces only. Never on indigo (--primary):
+       * #C04A3A on #2B4A8B is 1.74:1 and fails WCAG; on white it is 4.90:1 (AA). */
+      --us-accent:        #C04A3A;
+      --us-accent-hover:  #A53D2E;
+      --us-accent-soft:   #FAEAE6;
     }
 
     html, body {
@@ -486,8 +495,8 @@
       transition: border-color 0.15s;
     }
     .style-search:focus {
-      border-color: var(--primary-light);
-      box-shadow: 0 0 0 2px rgba(46,80,130,0.12);
+      border-color: var(--us-accent);
+      box-shadow: 0 0 0 2px rgba(192,74,58,0.16);
     }
     .style-search::placeholder { color: #94a3b8; }
 
@@ -864,8 +873,9 @@
     .faq-item summary.faq-q::before { content: '+'; display: inline-block; width: 18px; font-weight: 700; color: var(--primary); }
     .faq-item[open] summary.faq-q::before { content: '\2212'; }
     .faq-item .faq-a { font-size: 15px; line-height: 1.65; color: var(--text-dark); margin-top: 10px; }
-    .faq-item .faq-a a { color: var(--primary); text-decoration: underline; }
-    .faq-item .faq-a a:hover { color: var(--primary-dark); }
+    .faq-item .faq-a a { color: var(--us-accent); text-decoration: underline; }
+    .faq-item .faq-a a:hover { color: var(--us-accent-hover); }
+    .faq-item .faq-a a:focus-visible { outline: 2px solid var(--us-accent); outline-offset: 2px; border-radius: 2px; }
     .faq-item .faq-a code { background: rgba(46, 80, 130, 0.08); padding: 1px 5px; border-radius: 3px; font-family: ui-monospace, 'SF Mono', Monaco, 'Cascadia Code', Menlo, monospace; font-size: 0.95em; }
     @media (max-width: 700px) {
       .faq-section { padding: 32px 14px 48px; }
