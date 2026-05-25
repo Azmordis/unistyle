@@ -412,6 +412,7 @@ textarea::-webkit-scrollbar-thumb {
   border: 1px solid var(--us-accent);
   border-radius: 6px;
   animation: ahaIn 200ms ease-out;
+  transition: opacity 0.3s ease;
 }
 .aha-nudge.show { display: flex; }
 .aha-nudge .aha-msg { flex: 1; font-size: 11px; color: var(--us-accent-soft); }

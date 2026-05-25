@@ -123,6 +123,7 @@
       --primary:        var(--bwb-brand-primary);
       --primary-dark:   var(--bwb-brand-primary-hover);
       --primary-light:  #4A6BB8;                          /* UniStyle-only: lifted indigo for chip-bg */
+      --primary-2:      #3a64a3;                           /* lifted-indigo gradient top, matches extension popup */
       --accent:         var(--bwb-brand-primary);         /* legacy alias for --primary */
       --accent-bg:      var(--bwb-brand-primary-soft);
       --accent-border:  var(--bwb-brand-primary);
@@ -306,19 +307,18 @@
     .primary-action-row { padding-top: 1px; }
     .btn-format-primary {
       width: 100%;
-      background: var(--accent);
+      padding: 7px 10px;
+      background: linear-gradient(180deg, var(--primary-2, #3a64a3), var(--accent));
       color: #fff;
-      border: 1px solid var(--us-accent);
+      border: 1px solid rgba(255,255,255,0.18);
       border-radius: 6px;
-      padding: 7px 14px;
-      font-size: 12.5px;
-      font-weight: 700;
-      letter-spacing: 0.01em;
+      font-size: 12px;
+      font-weight: 600;
       cursor: pointer;
       text-align: left;
-      transition: background 0.15s, transform 0.08s;
+      transition: filter 0.15s, transform 0.08s;
     }
-    .btn-format-primary:hover { background: var(--accent-hover); }
+    .btn-format-primary:hover { filter: brightness(1.1); }
     .btn-format-primary:active { transform: scale(0.99); }
 
     /* ── Transform buttons ───────────────────────────────── */
@@ -1007,6 +1007,7 @@
       border: 1px solid var(--us-accent);
       border-radius: 8px;
       animation: ahaIn 200ms ease-out;
+      transition: opacity 0.3s ease;
     }
     .aha-nudge.show { display: flex; }
     .aha-nudge .aha-msg { flex: 1; font-size: 12px; color: var(--us-accent-deep); }
@@ -1751,8 +1752,12 @@
       <a class="aha-tip" href="https://ko-fi.com/abaker421" target="_blank" rel="noopener noreferrer">☕ Tip</a>
       <button class="aha-x" aria-label="Dismiss">×</button>
     `;
-    nudge.querySelector('.aha-x').addEventListener('click', () => nudge.remove());
-    nudge.querySelector('.aha-tip').addEventListener('click', () => setTimeout(() => nudge.remove(), 100));
+    const fadeOut = () => { nudge.style.opacity = '0'; setTimeout(() => nudge.remove(), 300); };
+    let dismissTimer = setTimeout(fadeOut, 8000);
+    nudge.addEventListener('mouseenter', () => clearTimeout(dismissTimer));
+    nudge.addEventListener('mouseleave', () => { dismissTimer = setTimeout(fadeOut, 8000); });
+    nudge.querySelector('.aha-x').addEventListener('click', () => { clearTimeout(dismissTimer); fadeOut(); });
+    nudge.querySelector('.aha-tip').addEventListener('click', () => { clearTimeout(dismissTimer); setTimeout(fadeOut, 100); });
     anchorRow.insertAdjacentElement('afterend', nudge);
   }
 

@@ -247,6 +247,16 @@ async function maybeShowAhaNudge(anchorRow) {
   `;
   nudge.querySelector('.aha-x').addEventListener('click', () => nudge.remove());
   nudge.querySelector('.aha-tip').addEventListener('click', () => setTimeout(() => nudge.remove(), 100));
+  let ahaDismissTimer;
+  const startDismissTimer = () => {
+    ahaDismissTimer = setTimeout(() => {
+      nudge.style.opacity = '0';
+      setTimeout(() => nudge.remove(), 300);
+    }, 8000);
+  };
+  startDismissTimer();
+  nudge.addEventListener('mouseenter', () => clearTimeout(ahaDismissTimer));
+  nudge.addEventListener('mouseleave', startDismissTimer);
   anchorRow.insertAdjacentElement('afterend', nudge);
 }
 
