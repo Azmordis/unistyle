@@ -8,15 +8,16 @@
 
 :host, * { box-sizing: border-box; }
 
-/* UniStyle per-product accent (robin red) - defined on :host so it cascades into
-   the shadow tree. Defined for parity with the web app.
-   --us-accent not applied in extension: dark-navy surfaces fail contrast.
-   Revisit when light-mode extension is available or a dark-mode accent variant
-   is designed. */
+/* UniStyle per-product accent (amber) - locked 2026-05-25.
+   Defined on :host so it cascades into the shadow tree.
+   Hex source of truth: BRAND.md at repo root.
+   UniStyle's per-product accent sits below the BwB indigo-only umbrella
+   (allowed per build-with-baker-brand-color-palette/_known-issues.md Issue 2). */
 :host {
-  --us-accent: #C04A3A;
-  --us-accent-hover: #A53D2E;
-  --us-accent-soft: #FAEAE6;
+  --us-accent:        #E0A82E;
+  --us-accent-hover:  #C68F1F;
+  --us-accent-soft:   #FEF3D1;
+  --us-accent-deep:   #8A5A0E;
 }
 
 .tf-panel {
@@ -210,9 +211,8 @@
 
 /* ── Section header (v1.6.0 F16) ────────────────── */
 /* Lightweight label that separates the Cleanup row from the
-   Unicode Styles rows. Uses the gold accent for the left rule
-   (matches the unistyle.io brand direction set by icon.svg and
-   the OG image) while the Unicode-style rows below keep their
+   Unicode Styles rows. Uses the UniStyle per-product amber accent
+   for the left rule while the Unicode-style rows below keep their
    blue accents - this is a tone hint, not a full redesign. */
 .tf-section-header {
   font-size: 9px;
@@ -221,27 +221,27 @@
   text-transform: uppercase;
   color: rgba(245,240,232,0.55);
   padding: 8px 6px 4px;
-  border-left: 2px solid #A07020;
+  border-left: 2px solid var(--us-accent);
   margin: 2px 0 4px;
-  background: linear-gradient(90deg, rgba(160,112,32,0.10), transparent 60%);
+  background: linear-gradient(90deg, rgba(224, 168, 46, 0.10), transparent 60%);
 }
 .tf-cleanup-section { margin-bottom: 8px; }
-/* Cleanup row gets a gold left-border + slightly lifted background to
+/* Cleanup row gets an amber left-border + slightly lifted background to
    visually distinguish it from the Unicode-style rows. The Replace
-   button uses the gold fill so the primary action reads as
+   button uses the amber fill so the primary action reads as
    "cleanup action" rather than "style action". */
 .tf-cleanup-section .tf-row {
-  border-left: 3px solid #A07020;
-  background: rgba(160, 112, 32, 0.08);
+  border-left: 3px solid var(--us-accent);
+  background: rgba(224, 168, 46, 0.08);
 }
 .tf-cleanup-section .tf-row:hover {
-  background: rgba(160, 112, 32, 0.14);
+  background: rgba(224, 168, 46, 0.14);
 }
 .tf-cleanup-section .tf-replace {
-  background: #A07020;
+  background: var(--us-accent);
 }
 .tf-cleanup-section .tf-replace:hover:not(:disabled) {
-  background: #b88234;
+  background: var(--us-accent-hover);
 }
 
 /* ── Error state ────────────────────────────────── */

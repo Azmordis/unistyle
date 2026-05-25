@@ -628,7 +628,7 @@
           'background: rgba(28, 53, 96, 0.96);' +
           'padding: 10px 14px;' +
           'border-radius: 8px;' +
-          'border-left: 3px solid #A07020;' +
+          'border-left: 3px solid #E0A82E;' + // UniStyle per-product accent (amber) - see BRAND.md
           'box-shadow: 0 4px 14px rgba(0,0,0,0.22), 0 1px 3px rgba(0,0,0,0.18);' +
           'max-width: 320px;' +
           'animation: tfin 0.18s ease-out;' +

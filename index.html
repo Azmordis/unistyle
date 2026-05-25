@@ -91,7 +91,7 @@
        * ───────────────────────────────────────────────────────────────────── */
 
       /* BwB umbrella brand - the umbrella's saturated brand color. Per-product
-       * accents may add their own (see UniStyle robin red --us-accent below). */
+       * accents may add their own (see UniStyle amber --us-accent below). */
       --bwb-brand-primary:        #2B4A8B;
       --bwb-brand-primary-hover:  #243F76;
       --bwb-brand-primary-soft:   #E8EDF7;
@@ -134,13 +134,18 @@
       --text-light:     #b8cce0;                          /* UniStyle-only: light text on dark panel */
       --text-dark:      var(--bwb-text-primary);
 
-      /* UniStyle per-product accent (robin red) - BwB design system Module 03
-       * semantic-token override. SECONDARY layer: use on white (#FFFFFF) or
-       * near-white (--bg #F4F6FA) surfaces only. Never on indigo (--primary):
-       * #C04A3A on #2B4A8B is 1.74:1 and fails WCAG; on white it is 4.90:1 (AA). */
-      --us-accent:        #C04A3A;
-      --us-accent-hover:  #A53D2E;
-      --us-accent-soft:   #FAEAE6;
+      /* UniStyle per-product accent (amber) - locked 2026-05-25.
+       * Hex source of truth: BRAND.md at repo root.
+       * UniStyle sits below the BwB indigo-only umbrella with its own per-product
+       * accent (allowed per build-with-baker-brand-color-palette/_known-issues.md
+       * Issue 2). Contrast: --us-accent #E0A82E is 2.14:1 on white (non-text only:
+       * focus rings, borders, soft fills). For body text on white surfaces use
+       * --us-accent-deep #8A5A0E (5.74:1, AA). On dark navy (#1c3560) --us-accent
+       * is 5.55:1, AA. */
+      --us-accent:        #E0A82E;
+      --us-accent-hover:  #C68F1F;
+      --us-accent-soft:   #FEF3D1;
+      --us-accent-deep:   #8A5A0E;
     }
 
     html, body {
@@ -496,7 +501,7 @@
     }
     .style-search:focus {
       border-color: var(--us-accent);
-      box-shadow: 0 0 0 2px rgba(192,74,58,0.16);
+      box-shadow: 0 0 0 2px rgba(224,168,46,0.20);
     }
     .style-search::placeholder { color: #94a3b8; }
 
@@ -873,7 +878,9 @@
     .faq-item summary.faq-q::before { content: '+'; display: inline-block; width: 18px; font-weight: 700; color: var(--primary); }
     .faq-item[open] summary.faq-q::before { content: '\2212'; }
     .faq-item .faq-a { font-size: 15px; line-height: 1.65; color: var(--text-dark); margin-top: 10px; }
-    .faq-item .faq-a a { color: var(--us-accent); text-decoration: underline; }
+    /* FAQ links use --us-accent-deep (5.74:1 on white, AA). --us-accent itself is too
+       light for body text on white - it's reserved for focus rings, borders, soft fills. */
+    .faq-item .faq-a a { color: var(--us-accent-deep); text-decoration: underline; }
     .faq-item .faq-a a:hover { color: var(--us-accent-hover); }
     .faq-item .faq-a a:focus-visible { outline: 2px solid var(--us-accent); outline-offset: 2px; border-radius: 2px; }
     .faq-item .faq-a code { background: rgba(46, 80, 130, 0.08); padding: 1px 5px; border-radius: 3px; font-family: ui-monospace, 'SF Mono', Monaco, 'Cascadia Code', Menlo, monospace; font-size: 0.95em; }

@@ -13,13 +13,16 @@
   --primary-2: #3a64a3;
   --accent: #93c5fd;
 
-  /* UniStyle per-product accent (robin red) - defined for parity with the web app.
-     --us-accent not applied in extension: dark-navy surfaces fail contrast.
-     Revisit when light-mode extension is available or a dark-mode accent variant
-     is designed. */
-  --us-accent: #C04A3A;
-  --us-accent-hover: #A53D2E;
-  --us-accent-soft: #FAEAE6;
+  /* UniStyle per-product accent (amber) - locked 2026-05-25.
+     Hex source of truth: BRAND.md at repo root.
+     UniStyle has its own per-product accent below the BwB indigo-only umbrella
+     (allowed per build-with-baker-brand-color-palette/_known-issues.md Issue 2).
+     Contrast: 5.55:1 on --bg #1c3560 (AA on dark navy). On white use --us-accent-deep
+     for body text (5.74:1); --us-accent at 2.14:1 on white is for non-text only. */
+  --us-accent:        #E0A82E;
+  --us-accent-hover:  #C68F1F;
+  --us-accent-soft:   #FEF3D1;
+  --us-accent-deep:   #8A5A0E;
 }
 
 * { box-sizing: border-box; }
@@ -47,13 +50,13 @@ html, body {
   gap: 8px;
   padding: 10px 12px;
   background: linear-gradient(180deg, rgba(255,255,255,0.04), transparent);
-  border-bottom: 3px solid #A07020;
+  border-bottom: 3px solid var(--us-accent);
   flex-shrink: 0;
 }
 .t-badge {
   width: 24px; height: 24px;
   border-radius: 6px;
-  background: #A07020;
+  background: var(--us-accent);
   color: #fff;
   font-weight: 800;
   display: grid;
@@ -301,16 +304,16 @@ textarea:focus { border-color: var(--accent); }
   transition: color 80ms, background 80ms;
 }
 .star-btn:hover {
-  color: #ffd470;
+  color: var(--us-accent);
   background: rgba(255,255,255,0.08);
 }
 .star-btn.on {
-  color: #ffd470;
-  border-color: rgba(255, 212, 112, 0.35);
-  background: rgba(255, 212, 112, 0.10);
+  color: var(--us-accent);
+  border-color: rgba(224, 168, 46, 0.35);
+  background: rgba(224, 168, 46, 0.10);
 }
 .star-btn.on:hover {
-  background: rgba(255, 212, 112, 0.18);
+  background: rgba(224, 168, 46, 0.18);
 }
 
 .copy-btn {
