@@ -228,7 +228,7 @@
       white-space: nowrap;
     }
     .help-toggle:hover { color: rgba(245,240,232,0.88); }
-    .help-toggle input { cursor: pointer; margin: 0; }
+    .help-toggle input { cursor: pointer; margin: 0; accent-color: var(--us-accent); }
     .btn-header {
       background: rgba(255,255,255,0.12);
       color: var(--text-light);
@@ -758,9 +758,15 @@
     .mhb-close:hover, .mhb-close:focus { color: #fff; background: rgba(255,255,255,0.08); outline: none; }
     /* Highlight the element whose tip is currently shown in the mobile help bar */
     [data-tip-active="true"] {
-      outline: 2px solid #fbbf24;
+      outline: 1px solid var(--us-accent);
       outline-offset: 2px;
       border-radius: 4px;
+    }
+    /* Style rows use the existing 1px amber border for help-active state instead
+       of a doubled-up outline - keeps the treatment consistent with row hover. */
+    .style-row[data-tip-active="true"] {
+      outline: none;
+      border-color: var(--us-accent);
     }
 
     /* ── Footer ──────────────────────────────────────────── */
@@ -1591,6 +1597,7 @@
     STYLES.forEach(style => {
       const row = document.createElement('div');
       row.className = 'style-row'; row.dataset.key = style.key;
+      row.setAttribute('data-tip', style.tip);
 
       const pillCell = document.createElement('div'); pillCell.className = 'pill-cell';
       const pill = document.createElement('span'); pill.className = 'style-pill'; pill.textContent = style.label;
@@ -1822,10 +1829,15 @@
   helpToggle.addEventListener('change', () => {
     helpEnabled = helpToggle.checked;
     localStorage.setItem(HELP_KEY, helpEnabled ? 'true' : 'false');
-    if (!helpEnabled && ttActive) {
-      ttActive = null;
-      ttPortal.style.opacity = '0';
-      ttPortal.style.display = 'none';
+    if (!helpEnabled) {
+      if (ttActive) {
+        ttActive = null;
+        ttPortal.style.opacity = '0';
+        ttPortal.style.display = 'none';
+      }
+      if (mhbActive) {
+        hideMobileHelp();
+      }
     }
   });
 
