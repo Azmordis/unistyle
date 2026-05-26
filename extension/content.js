@@ -38,7 +38,7 @@
   const LAST_USED_KEY = 'unistyle-last-used-style';
   /* Mirror of popup.js defaults — kept identical so first-run behaviour
      matches whether the popup or the panel runs first. */
-  const DEFAULT_FAVS = ['bold', 'italic', 'strike', 'under', 'smallcaps', 'fullwidth', 'upsidedown'];
+  const DEFAULT_FAVS = ['bold', 'italic', 'bolditalic', 'boldsans', 'italicsans', 'boldisans', 'under', 'strike', 'mono', 'script', 'fraktur', 'dblstruck', 'fullwidth', 'smallcaps', 'bubble', 'upsidedown', 'reverse', 'altcase', 'zalgo', 'subscript', 'superscript', 'flags'];
 
   /* ── State ───────────────────────────────────────── */
   let panelHost = null;   // outer host element in the page DOM

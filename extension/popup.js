@@ -15,7 +15,7 @@ const ZALGO_LEVEL_KEY = 'tf-popup-zalgo';
    Default set covers the most-used Unicode styles so day-one users see
    something useful in the panel without configuring anything. */
 const FAVS_KEY = 'tf-favs';
-const DEFAULT_FAVS = ['bold', 'italic', 'strike', 'under', 'smallcaps', 'fullwidth', 'upsidedown'];
+const DEFAULT_FAVS = ['bold', 'italic', 'bolditalic', 'boldsans', 'italicsans', 'boldisans', 'under', 'strike', 'mono', 'script', 'fraktur', 'dblstruck', 'fullwidth', 'smallcaps', 'bubble', 'upsidedown', 'reverse', 'altcase', 'zalgo', 'subscript', 'superscript', 'flags'];
 let favorites = new Set(DEFAULT_FAVS);
 
 /* Special chars (lifted from index.html, lightly compacted) */
