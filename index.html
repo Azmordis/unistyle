@@ -195,24 +195,6 @@
     }
     .header-title .title-text { display: flex; flex-direction: column; line-height: 1.1; }
     .header-title .title-tagline { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.6); letter-spacing: 0.01em; display: inline-flex; align-items: center; gap: 5px; }
-    .info-bubble {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 13px;
-      height: 13px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.18);
-      color: rgba(255,255,255,0.9);
-      font-size: 10px;
-      font-weight: 700;
-      font-style: italic;
-      font-family: Georgia, 'Times New Roman', serif;
-      cursor: help;
-      user-select: none;
-      transition: background 0.15s;
-    }
-    .info-bubble:hover, .info-bubble:focus { background: rgba(255,255,255,0.35); outline: none; }
     .header-actions { display: flex; gap: 8px; align-items: center; }
     .help-toggle {
       display: inline-flex;
@@ -1048,7 +1030,7 @@
       </div>
       <div class="title-text">
         <span class="brand-name">UniStyle</span>
-        <span class="title-tagline">Unicode Text Formatter<span class="info-bubble" tabindex="0" data-tip="Unicode styles copy-paste into Discord, Notion, X/Twitter, Slack, and more. The formatting travels with the text." aria-label="Unicode styles copy-paste into Discord, Notion, X/Twitter, Slack, and more. The formatting travels with the text.">i</span></span>
+        <span class="title-tagline">Unicode Text Formatter</span>
       </div>
     </h1>
     <div class="header-actions">
@@ -1911,45 +1893,6 @@
     ttPortal.style.opacity = '0';
     setTimeout(() => { if (ttPortal.style.opacity === '0') ttPortal.style.display = 'none'; }, 160);
   });
-  /* ── Info bubble: tap-to-show on touch + click ────────── */
-  const infoBubble = document.querySelector('.info-bubble[data-tip]');
-  if (infoBubble) {
-    infoBubble.addEventListener('click', e => {
-      e.stopPropagation();
-      if (ttActive === infoBubble) {
-        // Already open - close it
-        ttActive = null;
-        ttPortal.style.opacity = '0';
-        setTimeout(() => { if (ttPortal.style.opacity === '0') ttPortal.style.display = 'none'; }, 160);
-        return;
-      }
-      // Open via portal (same logic as the mouseover handler)
-      ttActive = infoBubble;
-      ttPortal.textContent = infoBubble.dataset.tip;
-      ttPortal.style.display = 'block';
-      ttPortal.style.opacity = '0';
-      requestAnimationFrame(() => {
-        const r  = infoBubble.getBoundingClientRect();
-        const tw = ttPortal.offsetWidth;
-        const th = ttPortal.offsetHeight;
-        const top = (window.innerHeight - r.bottom > th + 12) ? r.bottom + 5 : r.top - th - 8;
-        let left = r.left + r.width / 2 - tw / 2;
-        left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));
-        ttPortal.style.top  = top  + 'px';
-        ttPortal.style.left = left + 'px';
-        ttPortal.style.opacity = '1';
-        // Auto-close when user taps/clicks elsewhere
-        const closeOnOutside = () => {
-          ttActive = null;
-          ttPortal.style.opacity = '0';
-          setTimeout(() => { if (ttPortal.style.opacity === '0') ttPortal.style.display = 'none'; }, 160);
-          document.removeEventListener('click', closeOnOutside, true);
-        };
-        setTimeout(() => document.addEventListener('click', closeOnOutside, true), 0);
-      });
-    });
-  }
-
   /* ── Special character insert ─────────────────────────── */
   function insertAtCursor(char) {
     const s = inputEl.selectionStart ?? inputEl.value.length;
