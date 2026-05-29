@@ -460,8 +460,13 @@
   }
 
   /* F16 (v1.6.0): Build the Cleanup section that lives at the top
-     of the inline panel. Currently one entry (Format Sentences),
-     structured to support future cleanup actions without re-design. */
+     of the inline panel. Cleanup actions are text fixes (not letter
+     restyling), so they're grouped above the Unicode-style rows.
+       - Format Sentences (F16, v1.6.0)
+       - Strip Unicode     (v1.7.2) - un-styles fancy Unicode back to ASCII
+       - Remove Formatting (v1.7.2) - plain-text-ify: drops Markdown emphasis
+         and, on a rich-text selection, the in-place Replace inserts plain
+         text so HTML formatting (e.g. Gmail bold) is dropped too. */
   function buildCleanupSection(text, isEditable, readOnlyReason) {
     const section = document.createElement('div');
     section.className = 'tf-cleanup-section';
@@ -471,7 +476,44 @@
     header.textContent = 'Cleanup';
     section.appendChild(header);
 
-    // Format Sentences row (renders as a regular tf-row for visual parity)
+    section.appendChild(buildCleanupRow({
+      label: 'Format Sentences',
+      rendered: formatSentences(text),
+      lastUsedKey: 'format-sentences',
+      replaceTitle: 'Replace the selected text on the page with the cleaned-up version',
+      copyTitle: 'Copy the cleaned-up text to the clipboard',
+      isEditable, readOnlyReason
+    }));
+
+    section.appendChild(buildCleanupRow({
+      label: 'Strip Unicode',
+      rendered: stripUnicode(text),
+      lastUsedKey: 'strip-unicode',
+      replaceTitle: 'Replace the selected text with plain ASCII (removes Unicode formatting)',
+      copyTitle: 'Copy the plain-ASCII version to the clipboard',
+      isEditable, readOnlyReason
+    }));
+
+    section.appendChild(buildCleanupRow({
+      label: 'Remove Formatting',
+      rendered: removeFormatting(text),
+      lastUsedKey: 'remove-formatting',
+      replaceTitle: 'Replace the selection with plain text (drops bold/italic/Markdown; like Paste as plain text)',
+      copyTitle: 'Copy the plain-text version to the clipboard',
+      isEditable, readOnlyReason
+    }));
+
+    return section;
+  }
+
+  /* Build a single Cleanup-section row. Renders as a regular tf-row for
+     visual parity with the Unicode-style rows below. opts:
+       { label, rendered, lastUsedKey, replaceTitle, copyTitle,
+         isEditable, readOnlyReason } */
+  function buildCleanupRow(opts) {
+    const { label, rendered, lastUsedKey, replaceTitle, copyTitle,
+            isEditable, readOnlyReason } = opts;
+
     const row = document.createElement('div');
     row.className = 'tf-row';
 
@@ -479,10 +521,9 @@
     meta.className = 'tf-meta';
     const lbl = document.createElement('div');
     lbl.className = 'tf-label';
-    lbl.textContent = 'Format Sentences';
+    lbl.textContent = label;
     const prev = document.createElement('div');
     prev.className = 'tf-preview';
-    const rendered = formatSentences(text);
     prev.textContent = rendered;
     prev.title = rendered;
     meta.appendChild(lbl);
@@ -496,14 +537,14 @@
       replaceBtn.disabled = true;
       replaceBtn.title = readOnlyReason || "Can't replace text here.";
     } else {
-      replaceBtn.title = 'Replace the selected text on the page with the cleaned-up version';
+      replaceBtn.title = replaceTitle;
     }
     replaceBtn.addEventListener('click', e => {
       e.stopPropagation();
       if (!isEditable) return;
       const ok = replaceSelection(rendered);
       if (ok) {
-        setLastUsedStyle('format-sentences'); // F15 hotkey will reapply this
+        setLastUsedStyle(lastUsedKey); // F15 hotkey will reapply this
         replaceBtn.textContent = 'Done';
         replaceBtn.classList.add('done');
         setTimeout(dismiss, 350);
@@ -519,12 +560,12 @@
     copyBtn.className = 'tf-copy';
     copyBtn.type = 'button';
     copyBtn.textContent = 'Copy';
-    copyBtn.title = 'Copy the cleaned-up text to the clipboard';
+    copyBtn.title = copyTitle;
     copyBtn.addEventListener('click', async e => {
       e.stopPropagation();
       try {
         await navigator.clipboard.writeText(rendered);
-        setLastUsedStyle('format-sentences');
+        setLastUsedStyle(lastUsedKey);
         copyBtn.textContent = 'Copied';
         copyBtn.classList.add('copied');
         maybeShowAhaNudge(row);
@@ -543,8 +584,7 @@
     row.appendChild(meta);
     row.appendChild(copyBtn);
     row.appendChild(replaceBtn);
-    section.appendChild(row);
-    return section;
+    return row;
   }
 
   /* ── Positioning ─────────────────────────────────── */
@@ -626,6 +666,8 @@
      and reinstalled the extension with a missing style). */
   function transformByKey(key, text) {
     if (key === 'format-sentences') return formatSentences(text);
+    if (key === 'strip-unicode') return stripUnicode(text);
+    if (key === 'remove-formatting') return removeFormatting(text);
     const style = STYLES_MAP[key];
     if (!style) {
       const fallback = STYLES_MAP['bold'];
@@ -637,6 +679,8 @@
   /* Human-readable label for a style key (used in toast messages). */
   function labelForKey(key) {
     if (key === 'format-sentences') return 'Format Sentences';
+    if (key === 'strip-unicode') return 'Strip Unicode';
+    if (key === 'remove-formatting') return 'Remove Formatting';
     const s = STYLES_MAP[key];
     return s ? s.label : key;
   }

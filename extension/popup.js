@@ -54,18 +54,41 @@ function toTitleCase(text) {
 /* ── DOM refs ─────────────────────────────────────── */
 const inputEl       = document.getElementById('inputText');
 const outputList    = document.getElementById('outputList');
-const formatBtn     = document.getElementById('formatBtn');
 const clearBtn      = document.getElementById('clearBtn');
 const capsBtn       = document.getElementById('capsBtn');
 const lowerBtn      = document.getElementById('lowerBtn');
 const titleBtn      = document.getElementById('titleBtn');
-const stripBtn      = document.getElementById('stripBtn');
+const cleanupPrev    = document.getElementById('cleanupPrev');
+const cleanupNext    = document.getElementById('cleanupNext');
+const cleanupLabel   = document.getElementById('cleanupLabel');
+const cleanupDesc    = document.getElementById('cleanupDesc');
+const cleanupInd     = document.getElementById('cleanupInd');
+const cleanupPreview = document.getElementById('cleanupPreview');
+const cleanupApply   = document.getElementById('cleanupApply');
+const cleanupCopy    = document.getElementById('cleanupCopy');
 const charsToggle   = document.getElementById('charsToggle');
 const specialCharsRow = document.getElementById('specialCharsRow');
 const charCounter   = document.getElementById('charCounter');
 const styleSearch   = document.getElementById('styleSearch');
 const srAnnounce    = document.getElementById('sr-announce');
 const fullAppLink   = document.getElementById('fullAppLink');
+
+/* Cleanup carousel (v1.7.2): the three text-cleanup tools, shown one at a
+   time in the popup. Format Sentences and Strip Unicode used to be standalone
+   buttons; Remove Formatting is new. The last-used tool is remembered and
+   shown first on the next open. */
+const CLEANUP_TOOLS = [
+  { key:'format-sentences', label:'Format Sentences', desc:'Fix spacing, capitalization & punctuation', fn: formatSentences },
+  { key:'strip-unicode',    label:'Strip Unicode',    desc:'Fancy Unicode → plain ASCII',              fn: stripUnicode },
+  { key:'remove-formatting',label:'Remove Formatting',desc:'Bold / italic / Markdown → plain text',     fn: removeFormatting },
+];
+const CLEANUP_KEY = 'tf-popup-cleanup';
+let cleanupIndex = (() => {
+  try {
+    const i = CLEANUP_TOOLS.findIndex(t => t.key === localStorage.getItem(CLEANUP_KEY));
+    return i >= 0 ? i : 0;
+  } catch (_) { return 0; }
+})();
 
 const outputEls = {};       // key → { row, preview, copyBtn }
 let zalgoSliderEl = null;   // inline range input for the zalgo card
@@ -181,8 +204,33 @@ function render() {
     if (!els) continue;
     els.preview.textContent = text ? runStyle(style, text) : '';
   }
+  renderCleanupCard();
   updateCounter(text);
   localStorage.setItem(STORAGE_KEY, text);
+}
+
+/* Cleanup carousel rendering + navigation (v1.7.2). */
+function renderCleanupCard() {
+  const tool = CLEANUP_TOOLS[cleanupIndex];
+  cleanupLabel.textContent = tool.label;
+  cleanupDesc.textContent  = tool.desc;
+  cleanupInd.textContent   = (cleanupIndex + 1) + '/' + CLEANUP_TOOLS.length;
+  const text = inputEl.value;
+  cleanupPreview.textContent = text ? tool.fn(text) : '';
+}
+function persistCleanup() {
+  try { localStorage.setItem(CLEANUP_KEY, CLEANUP_TOOLS[cleanupIndex].key); } catch (_) {}
+}
+function moveCleanup(delta) {
+  const n = CLEANUP_TOOLS.length;
+  cleanupIndex = (cleanupIndex + delta + n) % n;
+  persistCleanup();
+  renderCleanupCard();
+}
+/* Mark the current tool as used: persist it + feed the inline hotkey. */
+function markCleanupUsed() {
+  persistCleanup();
+  try { chrome.storage.local.set({ 'unistyle-last-used-style': CLEANUP_TOOLS[cleanupIndex].key }); } catch (_) {}
 }
 
 /* Wrapper that passes the zalgo level when the style needs it. */
@@ -315,11 +363,6 @@ fullAppLink.addEventListener('click', e => {
 
 inputEl.addEventListener('input', render);
 
-formatBtn.addEventListener('click', () => {
-  applyTransform(formatSentences);
-  // F15 (v1.6.0): persist for the inline hotkey
-  try { chrome.storage.local.set({ 'unistyle-last-used-style': 'format-sentences' }); } catch (_) {}
-});
 clearBtn.addEventListener('click',  () => {
   inputEl.value = '';
   render();
@@ -328,7 +371,29 @@ clearBtn.addEventListener('click',  () => {
 capsBtn .addEventListener('click',  () => applyTransform(t => t.toUpperCase()));
 lowerBtn.addEventListener('click',  () => applyTransform(t => t.toLowerCase()));
 titleBtn.addEventListener('click',  () => applyTransform(toTitleCase));
-stripBtn.addEventListener('click',  () => applyTransform(stripUnicode));
+
+cleanupPrev.addEventListener('click', () => moveCleanup(-1));
+cleanupNext.addEventListener('click', () => moveCleanup(1));
+cleanupApply.addEventListener('click', () => {
+  applyTransform(CLEANUP_TOOLS[cleanupIndex].fn);
+  markCleanupUsed();
+});
+cleanupCopy.addEventListener('click', async () => {
+  const tool = CLEANUP_TOOLS[cleanupIndex];
+  const text = inputEl.value;
+  if (!text) { srAnnounce.textContent = 'Nothing to copy'; return; }
+  try {
+    await navigator.clipboard.writeText(tool.fn(text));
+    markCleanupUsed();
+    cleanupCopy.textContent = 'Copied';
+    cleanupCopy.classList.add('copied');
+    srAnnounce.textContent = tool.label + ' copied';
+    setTimeout(() => { cleanupCopy.textContent = 'Copy'; cleanupCopy.classList.remove('copied'); }, 1100);
+  } catch (_) {
+    cleanupCopy.textContent = 'Error';
+    setTimeout(() => { cleanupCopy.textContent = 'Copy'; }, 1100);
+  }
+});
 
 charsToggle.addEventListener('click', () => {
   const open = specialCharsRow.classList.toggle('open');

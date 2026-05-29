@@ -7,6 +7,7 @@
  *   STYLES, STYLES_MAP   - array + lookup of all 22 styles
  *   formatSentences      - primary "clean up" transform
  *   stripUnicode         - convert fancy Unicode back to ASCII
+ *   removeFormatting     - plain-text-ify: stripUnicode + Markdown + punctuation
  *   zalgoText            - combining-mark stacker (used inside STYLES too)
  *   cp, mapRange         - helpers
  *
@@ -147,17 +148,52 @@ const STRIP_MAP = (() => {
   add(0x1D552,97,26); add(0x1D7D8,48,10);
   for (let i=0;i<94;i++) m[cp(0xFF01+i)] = String.fromCharCode(0x21+i);
   m['　']=' ';
-  Object.entries(SMALL_CAPS).forEach(([a,sc]) => { m[sc]=a; });
+  Object.entries(SMALL_CAPS).forEach(([a,sc]) => { if (sc.charCodeAt(0) > 0x7F) m[sc]=a; });
   add(0x24B6,65,26); add(0x24D0,97,26);
   m['⓪']='0';
   for (let i=1;i<=9;i++) m[cp(0x2460+i-1)]=String(i);
-  Object.entries(UPSIDE_DOWN).forEach(([a,ud]) => { if (!m[ud]) m[ud]=a; });
+  Object.entries(UPSIDE_DOWN).forEach(([a,ud]) => { if (!m[ud] && ud.charCodeAt(0) > 0x7F) m[ud]=a; });
   return m;
 })();
 
 function stripUnicode(text) {
   let r = text.replace(/[̀-ͯ]/g, '');
   return [...r].map(ch => STRIP_MAP[ch] || ch).join('');
+}
+
+/* Remove Formatting (v1.7.2) - produce a plain-text version of the input,
+ * the way "Paste as plain text" would: stripUnicode (fancy Unicode -> ASCII
+ * + drop combining marks), then strip Markdown emphasis/heading/quote/link
+ * syntax (conservative: only tight-wrapped emphasis; single "_" left alone
+ * to protect snake_case), then normalize smart quotes/dashes/ellipsis/NBSP
+ * to ASCII. Operates on a STRING; HTML rich-text (e.g. Gmail bold) is handled
+ * in the inline panel, where replacing a selection inserts plain text. */
+function removeFormatting(text) {
+  let s = stripUnicode(text);
+
+  // Links / images: keep the visible label, drop the URL.
+  s = s.replace(/!?\[([^\]]*)\]\([^)\s]*\)/g, '$1');
+
+  // Emphasis wrappers (tight-wrapped only): bold, bold-italic, strike, code,
+  // single-asterisk italic, and __bold__. Single "_" intentionally skipped.
+  s = s.replace(/(\*\*\*|\*\*|~~)(\S(?:.*?\S)?)\1/g, '$2');
+  s = s.replace(/`([^`\n]+)`/g, '$1');
+  s = s.replace(/\*(\S(?:.*?\S)?)\*/g, '$1');
+  s = s.replace(/__(\S(?:.*?\S)?)__/g, '$1');
+
+  // Line-leading block markers: ATX headings, blockquotes, list bullets.
+  s = s.replace(/^[ \t]*#{1,6}[ \t]+/gm, '');
+  s = s.replace(/^[ \t]*>[ \t]?/gm, '');
+  s = s.replace(/^[ \t]*[-*+][ \t]+/gm, '');
+
+  // Smart punctuation → ASCII.
+  s = s.replace(/[‘’‚‛]/g, "'")
+       .replace(/[“”„‟]/g, '"')
+       .replace(/[–—―]/g, '-')
+       .replace(/…/g, '...')
+       .replace(/ /g, ' ');
+
+  return s;
 }
 
 /* ── Styles ───────────────────────────────────────────── */

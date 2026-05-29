@@ -1072,6 +1072,7 @@
           <button class="btn-transform" id="lowerBtn"  data-tip="Convert all text to lowercase">lower</button>
           <button class="btn-transform" id="titleBtn"  data-tip="Capitalize the first letter of every word">Title Case</button>
           <button class="btn-transform" id="stripBtn"  data-tip="Remove Unicode formatting — converts 𝐛𝐨𝐥𝐝, 𝓈𝒸𝓇𝒾𝓅𝓉, ｖａｐｏｒｗａｖｅ back to plain text">Strip Unicode</button>
+          <button class="btn-transform" id="removeFmtBtn"  data-tip="Remove formatting - turn bold/italic/markdown and pasted rich text into plain text, like Paste as plain text">Remove Formatting</button>
           <button class="btn-transform btn-chars-toggle" id="charsToggle"
             aria-expanded="false" aria-controls="specialCharsRow"
             data-tip="Show/hide special character insert buttons — em dash, smart quotes, arrows, math symbols, and more">Chars ▾</button>
@@ -1367,6 +1368,7 @@
   const lowerBtn     = document.getElementById('lowerBtn');
   const titleBtn     = document.getElementById('titleBtn');
   const stripBtn     = document.getElementById('stripBtn');
+  const removeFmtBtn = document.getElementById('removeFmtBtn');
   const charsToggle  = document.getElementById('charsToggle');
   const specialCharsRow = document.getElementById('specialCharsRow');
   const emojiToggle  = document.getElementById('emojiToggle');
@@ -1784,6 +1786,7 @@
   lowerBtn.addEventListener('click',  () => applyTransform(lowerBtn, s => s.toLowerCase()));
   titleBtn.addEventListener('click',  () => applyTransform(titleBtn, s => s.replace(/\b\w/g, c => c.toUpperCase())));
   stripBtn.addEventListener('click',  () => applyTransform(stripBtn, stripUnicode));
+  removeFmtBtn.addEventListener('click', () => applyTransform(removeFmtBtn, removeFormatting));
 
   /* ── Chars + Emoji toggles ───────────────────────────── */
   charsToggle.addEventListener('click', () => {
@@ -1959,7 +1962,7 @@
   }
   inputEl.addEventListener('input', autoGrowInput);
   // Also auto-grow when transform buttons / format / paste change the value
-  ['capsBtn','lowerBtn','titleBtn','stripBtn','formatBtn','clearBtn'].forEach(id => {
+  ['capsBtn','lowerBtn','titleBtn','stripBtn','removeFmtBtn','formatBtn','clearBtn'].forEach(id => {
     const b = document.getElementById(id);
     if (b) b.addEventListener('click', () => requestAnimationFrame(autoGrowInput));
   });

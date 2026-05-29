@@ -2,7 +2,7 @@
 // Strategy: network-first for index.html (updates reach users immediately);
 //           cache-first for everything else (icons, manifest - rarely change).
 
-const CACHE_NAME = 'unistyle-v7';
+const CACHE_NAME = 'unistyle-v8';
 
 const ASSETS = [
   './',

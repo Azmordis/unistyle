@@ -21,20 +21,31 @@
     </header>
 
     <div class="input-block">
-      <div class="primary-action-row">
-        <button class="btn-format-primary" id="formatBtn"
-          title="Clean up spacing, capitalization, and punctuation">Format Sentences</button>
-        <button class="btn-clear" id="clearBtn" title="Clear the textarea">Clear</button>
+      <div class="cleanup-card" id="cleanupCard">
+        <div class="cleanup-head">
+          <button class="cleanup-nav" id="cleanupPrev" type="button" aria-label="Previous cleanup tool" title="Previous tool">‹</button>
+          <div class="cleanup-titlewrap">
+            <span class="cleanup-label" id="cleanupLabel">Format Sentences</span>
+            <span class="cleanup-desc" id="cleanupDesc">Fix spacing, capitalization &amp; punctuation</span>
+          </div>
+          <span class="cleanup-ind" id="cleanupInd">1/3</span>
+          <button class="cleanup-nav" id="cleanupNext" type="button" aria-label="Next cleanup tool" title="Next tool">›</button>
+        </div>
+        <div class="cleanup-preview" id="cleanupPreview"></div>
+        <div class="cleanup-actions">
+          <button class="cleanup-apply" id="cleanupApply" type="button" title="Apply to the text box">Apply</button>
+          <button class="cleanup-copy" id="cleanupCopy" type="button" title="Copy the result">Copy</button>
+        </div>
       </div>
 
       <div class="transform-row">
         <button class="btn-transform" id="capsBtn"   title="UPPERCASE">CAPS</button>
         <button class="btn-transform" id="lowerBtn"  title="lowercase">lower</button>
         <button class="btn-transform" id="titleBtn"  title="Title Case">Title</button>
-        <button class="btn-transform" id="stripBtn"  title="Remove Unicode formatting">Strip</button>
         <button class="btn-transform btn-chars-toggle" id="charsToggle"
           aria-expanded="false" aria-controls="specialCharsRow"
           title="Insert special characters">Chars ▾</button>
+        <button class="btn-clear" id="clearBtn" title="Clear the textarea">Clear</button>
       </div>
 
       <div class="special-chars-row" id="specialCharsRow"></div>
