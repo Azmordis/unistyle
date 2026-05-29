@@ -1,2 +1,21 @@
-# Internal planning artifacts (kept in local knowledge base, not public)
+# env (commit the example only)
+.env
+.env.*
+!.env.example
+
+# os + editor
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# local agent config
+.claude/
+
+# internal planning artifacts (kept in local knowledge base, not public)
 future-enhancements.md
+
+# Chrome Web Store upload zips - reproducible build artifacts from tagged source
+cws-submissions/
