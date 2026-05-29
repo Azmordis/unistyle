@@ -14,7 +14,7 @@
   --accent: #93c5fd;
 
   /* UniStyle per-product accent (amber) - locked 2026-05-25.
-     Hex source of truth: BRAND.md at repo root.
+     Hex source of truth: docs/internal/BRAND.md.
      UniStyle has its own per-product accent below the BwB indigo-only umbrella
      (allowed per build-with-baker-brand-color-palette/_known-issues.md Issue 2).
      Contrast: 5.55:1 on --bg #1c3560 (AA on dark navy). On white use --us-accent-deep

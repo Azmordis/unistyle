@@ -10,7 +10,7 @@
 
 /* UniStyle per-product accent (amber) - locked 2026-05-25.
    Defined on :host so it cascades into the shadow tree.
-   Hex source of truth: BRAND.md at repo root.
+   Hex source of truth: docs/internal/BRAND.md.
    UniStyle's per-product accent sits below the BwB indigo-only umbrella
    (allowed per build-with-baker-brand-color-palette/_known-issues.md Issue 2). */
 :host {
