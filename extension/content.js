@@ -36,9 +36,44 @@
      Pseudo-key 'format-sentences' indicates the engine's formatSentences
      cleanup function rather than a STYLES_MAP entry. */
   const LAST_USED_KEY = 'unistyle-last-used-style';
+  /* v1.8.0: persists which Cleanup option (Format Sentences / Strip
+     Unicode / Remove Formatting) was last shown in the inline panel's
+     switchable Cleanup section, so the same one is displayed first next
+     time. Independent of LAST_USED_KEY (which drives the hotkey reapply).
+     Falls back to the first option when empty/unknown. */
+  const CLEANUP_CHOICE_KEY = 'unistyle-cleanup-choice';
   /* Mirror of popup.js defaults — kept identical so first-run behaviour
      matches whether the popup or the panel runs first. */
   const DEFAULT_FAVS = ['bold', 'italic', 'bolditalic', 'boldsans', 'italicsans', 'boldisans', 'under', 'strike', 'mono', 'script', 'fraktur', 'dblstruck', 'fullwidth', 'smallcaps', 'bubble', 'upsidedown', 'reverse', 'altcase', 'zalgo', 'subscript', 'superscript', 'flags'];
+
+  /* v1.8.0: the three Cleanup actions, shown one-at-a-time in the inline
+     panel and cycled with the ‹ › arrows. `fn` wraps the engine helper
+     (already on globalThis via engine.js). `key` doubles as the
+     LAST_USED_KEY pseudo-key (see transformByKey/labelForKey) and the
+     persisted CLEANUP_CHOICE_KEY value. */
+  const CLEANUP_OPTIONS = [
+    {
+      key: 'format-sentences',
+      label: 'Format Sentences',
+      fn: t => formatSentences(t),
+      replaceTitle: 'Replace the selected text on the page with the cleaned-up version',
+      copyTitle: 'Copy the cleaned-up text to the clipboard'
+    },
+    {
+      key: 'strip-unicode',
+      label: 'Strip Unicode',
+      fn: t => stripUnicode(t),
+      replaceTitle: 'Replace the selected text with plain ASCII (removes Unicode formatting)',
+      copyTitle: 'Copy the plain-ASCII version to the clipboard'
+    },
+    {
+      key: 'remove-formatting',
+      label: 'Remove Formatting',
+      fn: t => removeFormatting(t),
+      replaceTitle: 'Replace the selection with plain text (drops bold/italic/Markdown; like Paste as plain text)',
+      copyTitle: 'Copy the plain-text version to the clipboard'
+    }
+  ];
 
   /* ── State ───────────────────────────────────────── */
   let panelHost = null;   // outer host element in the page DOM
@@ -46,6 +81,11 @@
   let panelText = '';     // current selection text the panel was opened with
   let escListener = null;
   let outsideListener = null;
+  /* Active drag listeners (set while the header is being dragged). Held at
+     module scope so dismiss() can tear them down if the panel closes
+     mid-drag (e.g. Esc while the mouse button is still held). */
+  let dragMoveListener = null;
+  let dragUpListener = null;
   /* Snapshot of where the highlighted text lives, captured BEFORE we
      build the panel so we can put the new text back in the right place
      when Replace is clicked. Shape:
@@ -189,7 +229,10 @@
     // root and we'll lose the activeElement/Range we need.
     target = captureTarget();
 
-    const styles = await getFavoriteStyles();
+    const [styles, cleanupChoice] = await Promise.all([
+      getFavoriteStyles(),
+      getCleanupChoice()
+    ]);
 
     panelHost = document.createElement('div');
     panelHost.id = HOST_ID;
@@ -207,12 +250,16 @@
     const panel = document.createElement('div');
     panel.className = 'tf-panel';
 
-    panel.appendChild(buildHeader());
+    const header = buildHeader();
+    panel.appendChild(header);
     panel.appendChild(buildSourcePreview(text));
-    panel.appendChild(buildList(text, styles));
+    panel.appendChild(buildList(text, styles, cleanupChoice));
 
     panelRoot.appendChild(panel);
     document.body.appendChild(panelHost);
+
+    // Header is the drag handle (see makeDraggable).
+    makeDraggable(header);
 
     // Position once the panel has been laid out
     requestAnimationFrame(() => positionPanel(panel));
@@ -235,6 +282,11 @@
   function dismiss() {
     if (escListener)     document.removeEventListener('keydown',  escListener,     true);
     if (outsideListener) document.removeEventListener('mousedown', outsideListener, true);
+    // Tear down a drag in progress (e.g. Esc pressed mid-drag).
+    if (dragMoveListener) document.removeEventListener('mousemove', dragMoveListener, true);
+    if (dragUpListener)   document.removeEventListener('mouseup',   dragUpListener,   true);
+    dragMoveListener = null;
+    dragUpListener = null;
     escListener = null;
     outsideListener = null;
     if (panelHost && panelHost.parentNode) panelHost.parentNode.removeChild(panelHost);
@@ -341,7 +393,7 @@
     return wrap;
   }
 
-  function buildList(text, styles) {
+  function buildList(text, styles, cleanupChoice) {
     const list = document.createElement('div');
     list.className = 'tf-list';
 
@@ -360,7 +412,7 @@
        Currently one entry: Format Sentences. Distinct from the
        Unicode-style rows below so users understand it's a
        different kind of action (text cleanup, not letter restyling). */
-    list.appendChild(buildCleanupSection(text, isEditable, readOnlyReason));
+    list.appendChild(buildCleanupSection(text, isEditable, readOnlyReason, cleanupChoice));
 
     if (!styles || styles.length === 0) {
       const empty = document.createElement('div');
@@ -459,15 +511,22 @@
     return list;
   }
 
-  /* F16 (v1.6.0): Build the Cleanup section that lives at the top
+  /* F16 (v1.6.0) / reworked v1.8.0: Build the Cleanup section at the top
      of the inline panel. Cleanup actions are text fixes (not letter
      restyling), so they're grouped above the Unicode-style rows.
+
+     The three actions are now shown ONE AT A TIME and cycled with the
+     ‹ › arrows (wrapping at the ends):
        - Format Sentences (F16, v1.6.0)
        - Strip Unicode     (v1.7.2) - un-styles fancy Unicode back to ASCII
        - Remove Formatting (v1.7.2) - plain-text-ify: drops Markdown emphasis
          and, on a rich-text selection, the in-place Replace inserts plain
-         text so HTML formatting (e.g. Gmail bold) is dropped too. */
-  function buildCleanupSection(text, isEditable, readOnlyReason) {
+         text so HTML formatting (e.g. Gmail bold) is dropped too.
+
+     The last-shown action is persisted (CLEANUP_CHOICE_KEY) and restored
+     on next open via the `cleanupChoice` argument; unknown/empty falls
+     back to the first option. */
+  function buildCleanupSection(text, isEditable, readOnlyReason, cleanupChoice) {
     const section = document.createElement('div');
     section.className = 'tf-cleanup-section';
 
@@ -476,33 +535,59 @@
     header.textContent = 'Cleanup';
     section.appendChild(header);
 
-    section.appendChild(buildCleanupRow({
-      label: 'Format Sentences',
-      rendered: formatSentences(text),
-      lastUsedKey: 'format-sentences',
-      replaceTitle: 'Replace the selected text on the page with the cleaned-up version',
-      copyTitle: 'Copy the cleaned-up text to the clipboard',
-      isEditable, readOnlyReason
-    }));
+    // Switcher bar: ‹  CURRENT NAME  ›
+    const switcher = document.createElement('div');
+    switcher.className = 'tf-cleanup-switcher';
 
-    section.appendChild(buildCleanupRow({
-      label: 'Strip Unicode',
-      rendered: stripUnicode(text),
-      lastUsedKey: 'strip-unicode',
-      replaceTitle: 'Replace the selected text with plain ASCII (removes Unicode formatting)',
-      copyTitle: 'Copy the plain-ASCII version to the clipboard',
-      isEditable, readOnlyReason
-    }));
+    const prevBtn = document.createElement('button');
+    prevBtn.className = 'tf-cleanup-arrow';
+    prevBtn.type = 'button';
+    prevBtn.setAttribute('aria-label', 'Previous cleanup action');
+    prevBtn.textContent = '‹';
 
-    section.appendChild(buildCleanupRow({
-      label: 'Remove Formatting',
-      rendered: removeFormatting(text),
-      lastUsedKey: 'remove-formatting',
-      replaceTitle: 'Replace the selection with plain text (drops bold/italic/Markdown; like Paste as plain text)',
-      copyTitle: 'Copy the plain-text version to the clipboard',
-      isEditable, readOnlyReason
-    }));
+    const name = document.createElement('div');
+    name.className = 'tf-cleanup-name';
 
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'tf-cleanup-arrow';
+    nextBtn.type = 'button';
+    nextBtn.setAttribute('aria-label', 'Next cleanup action');
+    nextBtn.textContent = '›';
+
+    switcher.appendChild(prevBtn);
+    switcher.appendChild(name);
+    switcher.appendChild(nextBtn);
+    section.appendChild(switcher);
+
+    // Body holds exactly one active cleanup row, rebuilt on each switch.
+    const body = document.createElement('div');
+    body.className = 'tf-cleanup-body';
+    section.appendChild(body);
+
+    // findIndex returns -1 for empty/unknown stored value → Math.max → 0.
+    let idx = Math.max(0, CLEANUP_OPTIONS.findIndex(o => o.key === cleanupChoice));
+
+    function render(i) {
+      idx = (i + CLEANUP_OPTIONS.length) % CLEANUP_OPTIONS.length; // wrap-around
+      const opt = CLEANUP_OPTIONS[idx];
+      name.textContent = opt.label;
+      body.textContent = '';
+      body.appendChild(buildCleanupRow({
+        label: opt.label,
+        rendered: opt.fn(text),
+        lastUsedKey: opt.key,
+        replaceTitle: opt.replaceTitle,
+        copyTitle: opt.copyTitle,
+        isEditable, readOnlyReason,
+        hideLabel: true   // the switcher already shows the name
+      }));
+      setCleanupChoice(opt.key); // remember which one is shown for next open
+    }
+
+    prevBtn.addEventListener('click', e => { e.stopPropagation(); render(idx - 1); });
+    nextBtn.addEventListener('click', e => { e.stopPropagation(); render(idx + 1); });
+
+    render(idx);
     return section;
   }
 
@@ -512,21 +597,25 @@
          isEditable, readOnlyReason } */
   function buildCleanupRow(opts) {
     const { label, rendered, lastUsedKey, replaceTitle, copyTitle,
-            isEditable, readOnlyReason } = opts;
+            isEditable, readOnlyReason, hideLabel } = opts;
 
     const row = document.createElement('div');
     row.className = 'tf-row';
 
     const meta = document.createElement('div');
     meta.className = 'tf-meta';
-    const lbl = document.createElement('div');
-    lbl.className = 'tf-label';
-    lbl.textContent = label;
     const prev = document.createElement('div');
     prev.className = 'tf-preview';
     prev.textContent = rendered;
     prev.title = rendered;
-    meta.appendChild(lbl);
+    // The switcher bar shows the name in the v1.8.0 layout, so the row's
+    // own small label is suppressed there to avoid double-titling.
+    if (!hideLabel) {
+      const lbl = document.createElement('div');
+      lbl.className = 'tf-label';
+      lbl.textContent = label;
+      meta.appendChild(lbl);
+    }
     meta.appendChild(prev);
 
     const replaceBtn = document.createElement('button');
@@ -585,6 +674,52 @@
     row.appendChild(copyBtn);
     row.appendChild(replaceBtn);
     return row;
+  }
+
+  /* ── Dragging (v1.8.0) ───────────────────────────── */
+  /* Make the panel repositionable by dragging its header. Only the header
+     is the handle, so the close button, buttons, and text inside the body
+     keep working normally. Movement is clamped to keep the whole panel
+     within the viewport (8px pad) — it can never be dragged off-screen.
+     The host page's outside-click dismissal isn't triggered because the
+     closed shadow root retargets these events to panelHost, which the
+     outsideListener already ignores. */
+  function makeDraggable(handle) {
+    handle.style.cursor = 'move';
+    handle.addEventListener('mousedown', e => {
+      if (e.button !== 0) return;                       // left button only
+      // Don't start a drag from the close button (or any future control).
+      if (e.target.closest && e.target.closest('.tf-close')) return;
+      if (!panelHost) return;
+      e.preventDefault();                               // suppress text selection
+
+      const PAD = 8;
+      const rect = panelHost.getBoundingClientRect();
+      const pw = rect.width;
+      const ph = rect.height;
+      const offsetX = e.clientX - rect.left;            // grab point within the panel
+      const offsetY = e.clientY - rect.top;
+      handle.classList.add('tf-dragging');
+
+      dragMoveListener = ev => {
+        let left = ev.clientX - offsetX;
+        let top  = ev.clientY - offsetY;
+        // Clamp so the panel stays fully on-screen.
+        left = Math.max(PAD, Math.min(left, window.innerWidth  - pw - PAD));
+        top  = Math.max(PAD, Math.min(top,  window.innerHeight - ph - PAD));
+        panelHost.style.left = `${left}px`;
+        panelHost.style.top  = `${top}px`;
+      };
+      dragUpListener = () => {
+        document.removeEventListener('mousemove', dragMoveListener, true);
+        document.removeEventListener('mouseup',   dragUpListener,   true);
+        dragMoveListener = null;
+        dragUpListener = null;
+        if (handle.isConnected) handle.classList.remove('tf-dragging');
+      };
+      document.addEventListener('mousemove', dragMoveListener, true);
+      document.addEventListener('mouseup',   dragUpListener,   true);
+    });
   }
 
   /* ── Positioning ─────────────────────────────────── */
@@ -659,6 +794,22 @@
   function setLastUsedStyle(key) {
     if (!key || typeof key !== 'string') return;
     try { chrome.storage.local.set({ [LAST_USED_KEY]: key }); } catch (_) {}
+  }
+
+  /* v1.8.0: read/write which Cleanup option is shown in the switchable
+     Cleanup section. Same chrome.storage.local store the extension
+     already uses. Returns null when empty/unreadable so the caller
+     defaults to the first option. */
+  async function getCleanupChoice() {
+    try {
+      const data = await chrome.storage.local.get(CLEANUP_CHOICE_KEY);
+      const v = data && data[CLEANUP_CHOICE_KEY];
+      return (typeof v === 'string' && v) ? v : null;
+    } catch (_) { return null; }
+  }
+  function setCleanupChoice(key) {
+    if (!key || typeof key !== 'string') return;
+    try { chrome.storage.local.set({ [CLEANUP_CHOICE_KEY]: key }); } catch (_) {}
   }
 
   /* Apply a transform by key. Handles the format-sentences pseudo-key

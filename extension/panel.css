@@ -45,7 +45,12 @@
   background: linear-gradient(180deg, rgba(255,255,255,0.04), transparent);
   border-bottom: 1px solid rgba(255,255,255,0.10);
   flex-shrink: 0;
+  /* v1.8.0: header is the drag handle (see content.js makeDraggable).
+     user-select:none stops text from highlighting while dragging. */
+  cursor: move;
+  user-select: none;
 }
+.tf-header.tf-dragging { cursor: grabbing; }
 .tf-title {
   display: flex;
   align-items: center;
@@ -238,6 +243,44 @@
 }
 .tf-cleanup-section .tf-replace:hover:not(:disabled) {
   background: var(--us-accent-hover);
+}
+
+/* ── Cleanup switcher (v1.8.0) ──────────────────── */
+/* The three cleanup actions are shown one at a time; ‹ › cycle between
+   them and the centered name labels the active one. Amber-tinted to match
+   the cleanup rows below it. */
+.tf-cleanup-switcher {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 6px 6px;
+}
+.tf-cleanup-arrow {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  font-size: 15px;
+  line-height: 1;
+  border-radius: 4px;
+  cursor: pointer;
+  background: rgba(224, 168, 46, 0.10);
+  color: var(--us-accent-soft);
+  border: 1px solid var(--us-accent);
+}
+.tf-cleanup-arrow:hover  { background: rgba(224, 168, 46, 0.22); color: #fff; }
+.tf-cleanup-arrow:active { transform: scale(0.92); }
+.tf-cleanup-name {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--us-accent-soft);
 }
 
 /* ── Error state ────────────────────────────────── */
