@@ -1,6 +1,7 @@
 # CLAUDE.md - UniStyle
 
 See @README.md for what this project is and why.
+See @docs/internal/architecture.md for the deep architecture reference (engine internals, STYLES model, extension architecture, how to add a style, gotchas).
 
 UniStyle is a hand-authored static site (no build step, no package.json) plus a
 Manifest V3 Chrome extension in `extension/`. The web app and the extension
