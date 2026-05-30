@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "UniStyle",
+  "name": "UniStyle - Unicode Text Formatter",
   "short_name": "UniStyle",
   "version": "1.8.0",
   "description": "Unicode text formatter - 20+ styles (bold, italic, script) for Discord, Notion, Twitter, Slack. Free, no signup.",
