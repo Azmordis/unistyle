@@ -74,6 +74,8 @@ The Chrome extension lives in a separate folder structure (not in this repo - th
 
 Issues and pull requests welcome. For larger changes please open an issue first to discuss.
 
+> **Internals:** see [docs/internal/architecture.md](docs/internal/architecture.md) for the full architecture reference — engine internals, the STYLES model, extension architecture, and gotchas.
+
 When adding a new Unicode style:
 
 1. Add the style definition to `engine.js` in the `STYLES` array
